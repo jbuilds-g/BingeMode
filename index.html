@@ -7,7 +7,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
-    <meta name="theme-color" content="#1e1e1e">
+    <meta name="theme-color" content="#121212">
 </head>
 <body>
 
@@ -16,27 +16,33 @@
         <img src="icon.svg" alt="Logo" class="app-icon">
         <h1>BingeMode</h1>
     </div>
-    <div class="controls">
-        <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
-        <button onclick="openModal()">+ Add Show</button>
-        <button class="icon-btn" onclick="exportData()" title="Backup">↓</button>
-        <button class="icon-btn" onclick="document.getElementById('importFile').click()" title="Restore">↑</button>
-        <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
-    </div>
+    <button class="icon-btn settings-btn" onclick="openSettings()" title="Settings">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.49l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+    </button>
 </header>
 
 <main id="showList" class="grid">
     </main>
 
-<div id="modal" class="hidden">
+<button class="fab" onclick="openModal()" title="Add Show">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+</button>
+
+<div id="modal" class="modal-backdrop hidden">
     <div class="modal-content">
-        <h2 id="modalTitle">Manage Show</h2>
+        <div class="modal-header">
+            <h2 id="modalTitle">Manage Show</h2>
+            <button class="close-btn" onclick="app.closeModal()">×</button>
+        </div>
         <div id="modalBody">
             </div>
     </div>
 </div>
 
-<div id="settingsModal" class="modal hidden">
+<div id="settingsModal" class="modal-backdrop hidden">
     <div class="modal-content">
         <div class="modal-header">
             <h3>Settings</h3>
@@ -44,16 +50,21 @@
         </div>
         <div id="settingsBody" class="modal-body">
             <div class="form-group">
-                <label>TMDB API Key (Optional)</label>
+                <label>TMDB API Key</label>
                 <input type="text" id="apiKeyInput" placeholder="Enter API Key">
-                <p class="hint">Required for smart tracking & covers.</p>
+                <p class="hint">Required for covers & episode names.</p>
             </div>
             
             <div class="settings-section">
-                <h4>Data Management</h4>
+                <h4>Data Backup</h4>
                 <div class="row">
-                    <button onclick="exportData()" class="secondary">Backup (Export)</button>
-                    <button onclick="document.getElementById('importFile').click()" class="secondary">Restore (Import)</button>
+                    <button onclick="exportData()" class="secondary">
+                        <span>↓ Export Data</span>
+                    </button>
+                    <button onclick="document.getElementById('importFile').click()" class="secondary">
+                        <span>↑ Restore Data</span>
+                    </button>
+                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
                 </div>
             </div>
         </div>
