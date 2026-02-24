@@ -5,9 +5,9 @@ const UI = {
         list.innerHTML = '';
 
         if (!shows || shows.length === 0) {
-            list.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:#666;">
-                <h3>No shows tracked</h3>
-                <p>Click "+ Add Show" to start building your library.</p>
+            list.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:60px; color:var(--text-dim);">
+                <h3>Library Empty</h3>
+                <p>Tap the + button to add a show.</p>
             </div>`;
             return;
         }
@@ -18,61 +18,51 @@ const UI = {
             const card = document.createElement('div');
             card.className = 'card';
             
+            // Poster
             const imgHtml = show.poster 
                 ? `<div class="poster-slot"><img src="${show.poster}" alt="${show.title}"></div>` 
                 : `<div class="poster-slot"><div class="poster-placeholder">${show.title.substring(0,2).toUpperCase()}</div></div>`;
 
-            let bottomSection = '';
-            let badges = '';
+            let metaInfo = '';
+            let progressHtml = '';
             let clickAction = '';
 
             if (show.tmdbId) {
-                // API MODE
+                // API Mode
                 clickAction = `onclick="app.openChecklist(${show.id})"`;
-
-                if (!show.seasonData || !Array.isArray(show.seasonData)) {
-                    badges = `<div class="rating-badge">S${show.season}</div>`;
-                    bottomSection = `<div class="card-api-hint" style="color:var(--warning); font-weight:bold;">⚠ Tap to Sync</div>`;
-                } else {
-                    const currentSeasonData = show.seasonData.find(s => s.number === show.season);
-                    const totalEps = currentSeasonData ? currentSeasonData.episodes : '?';
-                    let progressPct = 0;
-                    if (typeof totalEps === 'number') progressPct = (show.episode / totalEps) * 100;
-
-                    let statusTag = '';
-                    if (show.episode >= totalEps && typeof totalEps === 'number') {
-                        statusTag = `<span class="tag-finished">FINISHED</span>`;
-                    } else {
-                        statusTag = `<span class="tag-progress">${show.episode} / ${totalEps}</span>`;
-                    }
-
-                    badges = `<div class="rating-badge">S${show.season}</div> ${statusTag}`;
-                    bottomSection = `
-                        <div class="progress-container"><div class="progress-bar" style="width: ${Math.min(progressPct, 100)}%"></div></div>
-                    `;
+                const sData = show.seasonData ? show.seasonData.find(s => s.number === show.season) : null;
+                const totalEps = sData ? sData.episodes : 0;
+                
+                let pct = (totalEps > 0) ? (show.episode / totalEps) * 100 : 0;
+                
+                metaInfo = `<span>Season ${show.season}</span> <span>${show.episode}/${totalEps}</span>`;
+                progressHtml = `<div class="progress-rail"><div class="progress-fill" style="width:${pct}%"></div></div>`;
+                
+                if (show.episode >= totalEps && totalEps > 0) {
+                    metaInfo = `<span style="color:var(--success)">Finished S${show.season}</span>`;
                 }
+
             } else {
-                // MANUAL MODE
-                clickAction = ''; 
-                badges = `<div class="status-badge manual">Manual</div>`;
-                bottomSection = `
-                    <div class="card-stats"><span>S${show.season}</span><span>E${show.episode}</span></div>
-                    <div class="card-actions">
-                        <button onclick="app.quickUpdate(${show.id}, 0, 1)">+Ep</button>
-                        <button onclick="app.quickUpdate(${show.id}, 1, 0)">+Sz</button>
-                        <button onclick="app.openEdit(${show.id})">✎</button>
-                        <button class="danger" onclick="app.deleteShow(${show.id})">×</button>
-                    </div>
-                `;
+                // Manual Mode
+                // For manual mode, we render edit controls on the card or just basic info
+                // Per design request: "Make it easy to delete... ask twice"
+                // The delete button is best placed in the edit modal OR a dedicated small action area.
+                // Let's put a small action row for manual items since they don't have a checklist.
+                
+                clickAction = `onclick="app.openEdit(${show.id})"`;
+                metaInfo = `<span>S${show.season} • E${show.episode}</span>`;
+                
+                // Add mini delete button stopping propagation
+                metaInfo += `<button id="btn-del-${show.id}" class="danger" style="padding:4px 8px; font-size:12px; border-radius:4px; margin-left:auto;" onclick="event.stopPropagation(); app.confirmDelete(${show.id})">×</button>`;
             }
 
             card.innerHTML = `
-                <div class="card-click-wrapper" ${clickAction}>
+                <div onclick="(${clickAction})">
                     ${imgHtml}
                     <div class="card-content">
                         <div class="card-title">${show.title}</div>
-                        <div class="meta-row">${badges}</div>
-                        ${bottomSection}
+                        <div class="card-meta">${metaInfo}</div>
+                        ${progressHtml}
                     </div>
                 </div>
             `;
@@ -83,60 +73,76 @@ const UI = {
     renderChecklist(show) {
         const body = document.getElementById('modalBody');
         const title = document.getElementById('modalTitle');
-        title.innerText = `${show.title} - S${show.season}`;
+        title.innerText = show.title;
 
-        const safeSeasonData = show.seasonData || [];
-        const sData = safeSeasonData.find(s => s.number === show.season);
-        const totalEps = sData ? sData.episodes : 24; 
+        // Get Data
+        const sData = show.seasonData ? show.seasonData.find(s => s.number === show.season) : null;
+        const totalEps = sData ? sData.episodes : (show.episode + 5); // Fallback
+        const episodesList = sData && sData.episodeList ? sData.episodeList : [];
 
-        let gridHtml = `<div class="checklist-grid">`;
+        // Build List
+        let listHtml = `<div class="checklist-list">`;
+        
         for (let i = 1; i <= totalEps; i++) {
             const isWatched = i <= show.episode;
-            const isNext = i === show.episode + 1;
-            let classList = "ep-box";
-            if (isWatched) classList += " watched";
-            if (isNext) classList += " next";
+            
+            // Try to find episode name
+            let epName = `Episode ${i}`;
+            let epObj = episodesList.find(e => e.number === i);
+            if (epObj) epName = epObj.name;
 
-            gridHtml += `<div class="${classList}" onclick="app.setEpisode(${show.id}, ${i})">${i}</div>`;
+            listHtml += `
+                <div class="ep-row ${isWatched ? 'watched' : ''}" onclick="app.setEpisode(${show.id}, ${i})">
+                    <div class="checkbox"></div>
+                    <div class="ep-info">
+                        <div class="ep-num">S${show.season} E${i}</div>
+                        <div class="ep-title">${epName}</div>
+                    </div>
+                </div>
+            `;
         }
-        gridHtml += `</div>`;
+        listHtml += `</div>`;
 
-        let nextSeasonHtml = '';
-        if (show.episode >= totalEps) {
-            const nextS = safeSeasonData.find(s => s.number === show.season + 1);
+        // Next Season Button if finished
+        let nextHtml = '';
+        if (show.episode >= totalEps && totalEps > 0) {
+            const nextS = show.seasonData.find(s => s.number === show.season + 1);
             if (nextS) {
-                nextSeasonHtml = `
-                    <div class="season-complete-banner">
-                        <p>Season ${show.season} Complete!</p>
-                        <button class="next-season-btn" onclick="app.startSeason(${show.id}, ${show.season + 1})">Start Season ${show.season + 1}</button>
-                    </div>`;
-            } else {
-                nextSeasonHtml = `<div class="season-complete-banner"><p>All caught up!</p></div>`;
+                nextHtml = `<div style="text-align:center; margin-top:20px;">
+                    <button onclick="app.startSeason(${show.id}, ${show.season+1})">Start Season ${show.season+1}</button>
+                </div>`;
             }
         }
 
-        body.innerHTML = `
-            ${gridHtml}
-            ${nextSeasonHtml}
-            <div class="modal-actions" style="margin-top:20px; text-align:right;">
-                <button class="secondary" onclick="app.closeModal()">Close</button>
+        // Action Footer
+        const footerHtml = `
+            <div style="margin-top:24px; display:flex; justify-content:space-between; border-top:1px solid #333; padding-top:16px;">
+                <button class="secondary danger" id="btn-del-${show.id}" onclick="app.confirmDelete(${show.id})">Delete Show</button>
+                <button class="secondary" onclick="app.openEdit(${show.id})">Edit</button>
             </div>
+        `;
+
+        body.innerHTML = `
+            <div style="font-size:0.9rem; color:var(--text-dim); margin-bottom:10px;">Season ${show.season} Progress</div>
+            ${listHtml}
+            ${nextHtml}
+            ${footerHtml}
         `;
     },
 
     renderModalContent(show) {
         const body = document.getElementById('modalBody');
         const title = document.getElementById('modalTitle');
-        title.innerText = show ? "Edit Show" : "Add New Show";
+        title.innerText = show ? "Edit Details" : "Add Show";
 
-        // Inject Form
         body.innerHTML = `
+            ${!show ? `
             <div class="form-group">
-                <input type="text" id="searchInput" placeholder="Search TMDB (Type & Enter)" onchange="UI.handleSearch(this.value)">
+                <input type="text" id="searchInput" placeholder="Search TV Shows..." autocomplete="off">
                 <div id="searchResults" class="search-results"></div>
             </div>
-
-            <hr style="border:0; border-top:1px solid #333; margin: 15px 0;">
+            <div style="text-align:center; font-size:0.8rem; color:#555; margin:10px 0;">— OR MANUAL ADD —</div>
+            ` : ''}
 
             <div id="manualForm">
                 <div class="form-group">
@@ -151,52 +157,65 @@ const UI = {
                     <input type="hidden" id="apiRating">
                     <input type="hidden" id="apiSeasonData">
                     <div class="form-group">
-                        <label>Select Season to Start</label>
+                        <label>Select Season</label>
                         <select id="seasonSelect"></select>
                     </div>
                 </div>
 
                 <div id="manualFields">
-                    <div class="form-group">
-                        <label>Season</label>
-                        <input type="number" id="season" value="1" min="1">
-                    </div>
-                    <div class="form-group">
-                        <label>Episode</label>
-                        <input type="number" id="episode" value="0" min="0">
+                    <div class="row">
+                        <div class="form-group" style="flex:1">
+                            <label>Season</label>
+                            <input type="number" id="season" value="1" min="1">
+                        </div>
+                        <div class="form-group" style="flex:1">
+                            <label>Episode</label>
+                            <input type="number" id="episode" value="0" min="0">
+                        </div>
                     </div>
                 </div>
 
-                <div class="modal-footer">
-                    <button onclick="app.saveShow()" style="width:100%">Save</button>
-                    ${show ? '<button onclick="app.closeModal()" class="secondary" style="width:100%; margin-top:8px;">Cancel</button>' : ''}
+                <div class="modal-footer" style="margin-top:20px;">
+                    <button onclick="app.saveShow()" style="width:100%">Save Show</button>
                 </div>
             </div>
         `;
+
+        // Attach Search Listener with Debounce
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            let timeout = null;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => UI.handleSearch(e.target.value), 400);
+            });
+            searchInput.focus();
+        }
     },
 
     async handleSearch(query) {
-        if (!query) return;
+        if (!query) {
+            document.getElementById('searchResults').innerHTML = '';
+            return;
+        }
         const results = await API.search(query);
         const container = document.getElementById('searchResults');
         container.innerHTML = '';
         
-        if (results.length === 0) {
-            container.innerHTML = `<p style="color:#666">No results found.</p>`;
-            return;
-        }
+        if (results.length === 0) return;
 
         results.forEach(item => {
             const div = document.createElement('div');
-            div.style.cssText = "padding:10px; border-bottom:1px solid #333; cursor:pointer; display:flex; gap:10px; align-items:center;";
+            div.className = 'search-item';
             div.innerHTML = `
-                <img src="${item.poster || ''}" style="width:30px; height:45px; object-fit:cover; background:#333;">
+                <img src="${item.poster || ''}" style="width:36px; height:54px; object-fit:cover; background:#333; border-radius:4px;">
                 <div>
                     <div style="font-weight:bold;">${item.name}</div>
-                    <div style="font-size:0.8rem; color:#888;">${item.first_air_date ? item.first_air_date.substring(0,4) : ''}</div>
+                    <div style="font-size:0.75rem; color:#888;">${item.first_air_date ? item.first_air_date.substring(0,4) : ''}</div>
                 </div>
             `;
-            div.onclick = () => app.selectApiShow(item.id);
+            // Pass 'div' to animate it on click
+            div.onclick = () => app.selectApiShow(item.id, div);
             container.appendChild(div);
         });
     },
@@ -223,14 +242,11 @@ const UI = {
         document.getElementById('title').value = show.title;
 
         if (show.tmdbId) {
-            // Convert mode: If editing a manual show, we might want to attach API data
-            document.getElementById('convertId').value = show.id; 
-            // We assume if you edit, you might be upgrading. 
+            document.getElementById('convertId').value = show.id;
         } else {
-            // Manual edit
             document.getElementById('season').value = show.season;
             document.getElementById('episode').value = show.episode;
-            document.getElementById('convertId').value = show.id; // Allow search to upgrade this
+            document.getElementById('convertId').value = show.id;
         }
     }
 };
