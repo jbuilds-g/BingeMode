@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BingeMode</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#1e1e1e">
+</head>
+<body>
+
+<header>
+    <div class="logo-area">
+        <img src="icon.svg" alt="Logo" class="app-icon">
+        <h1>BingeMode</h1>
+    </div>
+    <div class="controls">
+        <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
+        <button onclick="openModal()">+ Add Show</button>
+        <button class="icon-btn" onclick="exportData()" title="Backup">↓</button>
+        <button class="icon-btn" onclick="document.getElementById('importFile').click()" title="Restore">↑</button>
+        <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
+    </div>
+</header>
+
+<main id="showList" class="grid">
+    </main>
+
+<div id="modal" class="hidden">
+    <div class="modal-content">
+        <h2 id="modalTitle">Manage Show</h2>
+        <div id="modalBody">
+            </div>
+    </div>
+</div>
+
+<div id="settingsModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Settings</h3>
+            <button class="close-btn" onclick="closeSettings()">×</button>
+        </div>
+        <div id="settingsBody" class="modal-body">
+            <div class="form-group">
+                <label>TMDB API Key (Optional)</label>
+                <input type="text" id="apiKeyInput" placeholder="Enter API Key">
+                <p class="hint">Required for smart tracking & covers.</p>
+            </div>
+            
+            <div class="settings-section">
+                <h4>Data Management</h4>
+                <div class="row">
+                    <button onclick="exportData()" class="secondary">Backup (Export)</button>
+                    <button onclick="document.getElementById('importFile').click()" class="secondary">Restore (Import)</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="saveSettings()">Save Settings</button>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="convertId">
+<input type="hidden" id="showId">
+
+<script src="db.js"></script>
+<script src="api.js"></script>
+<script src="ui.js"></script>
+<script src="app.js"></script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+</script>
+
+</body>
+</html>
