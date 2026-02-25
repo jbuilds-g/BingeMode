@@ -16,9 +16,6 @@ const app = {
 
     setupEventListeners() {
         document.body.addEventListener('click', async (e) => {
-            // Debugging: See what was clicked
-            // console.log('Click:', e.target);
-
             // 1. Check for Backdrops (closing modals)
             if (e.target.classList.contains('modal-backdrop')) {
                 this.closeModal();
@@ -32,8 +29,6 @@ const app = {
 
             const action = target.dataset.action;
             const id = target.dataset.id ? parseInt(target.dataset.id) : null;
-
-            console.log(`Action: ${action}, ID: ${id}`);
 
             // 3. Route Actions
             try {
@@ -144,7 +139,6 @@ const app = {
                 
                 // 1. Missing Season Data?
                 if (!show.seasonData || !Array.isArray(show.seasonData)) {
-                    console.log("Fixing missing seasonData...");
                     const details = await API.getDetails(show.tmdbId);
                     if (details && details.seasonData) {
                         show.seasonData = details.seasonData;
@@ -153,12 +147,10 @@ const app = {
                 }
 
                 // 2. Missing Episode Names?
-                // Check if 'seasonData' exists before finding index to avoid crash
                 if (show.seasonData) {
                     const seasonIndex = show.seasonData.findIndex(s => s.number === show.season);
                     if (seasonIndex > -1) {
                         if (!show.seasonData[seasonIndex].episodeList) {
-                            console.log("Fetching episode names...");
                             const epList = await API.getSeasonEpisodes(show.tmdbId, show.season);
                             if (epList) {
                                 show.seasonData[seasonIndex].episodeList = epList;
@@ -300,7 +292,16 @@ const app = {
 
     async setEpisode(id, epNum) {
         const show = await DB.getShow(id);
-        show.episode = epNum;
+        
+        // --- FIX IS HERE ---
+        // If user clicks the exact episode they are currently on, toggle it off (go back 1).
+        if (show.episode === epNum) {
+            show.episode = epNum - 1;
+        } else {
+            // Otherwise, set progress to this episode (checking it and all previous)
+            show.episode = epNum;
+        }
+
         show.updated = Date.now();
         await DB.saveShow(show);
         UI.renderChecklist(show); 
