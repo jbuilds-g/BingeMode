@@ -3,16 +3,22 @@ const app = {
         await API.init(); 
         await UI.renderList();
         
-        // Setup Backdrop Clicks
-        window.onclick = (event) => {
+        // Setup Backdrop Clicks (using event listener to be safe)
+        window.addEventListener('click', (event) => {
             if (event.target.classList.contains('modal-backdrop')) {
                 app.closeModal();
-                closeSettings();
+                // Also close settings if that's what was open
+                if (!document.getElementById('settingsModal').classList.contains('hidden')) {
+                    closeSettings();
+                }
             }
-        };
+        });
 
         const key = await DB.getSetting('tmdb_key');
-        if (key) document.getElementById('apiKeyInput').value = key;
+        if (key) {
+            const input = document.getElementById('apiKeyInput');
+            if (input) input.value = key;
+        }
     },
 
     openModal() {
@@ -33,21 +39,37 @@ const app = {
         let show = await DB.getShow(id);
         if (!show) return;
 
-        // Smart Update: Fetch episode names if missing and we have an API key
+        // --- SMART UPDATE & AUTO-HEAL ---
+        // If we have an API ID but missing season data (migration from v1), fetch it now.
         if (show.tmdbId && API.hasKey()) {
-            const seasonIndex = show.seasonData.findIndex(s => s.number === show.season);
+            
+            // 1. Auto-Heal: Missing seasonData entirely?
+            if (!show.seasonData || !Array.isArray(show.seasonData)) {
+                console.log("Migrating show data...");
+                const details = await API.getDetails(show.tmdbId);
+                if (details && details.seasonData) {
+                    show.seasonData = details.seasonData;
+                    // Save immediately so we don't fetch again next time
+                    await DB.saveShow(show); 
+                }
+            }
+
+            // 2. Smart Update: Missing episode names for current season?
+            // Safe access using ( || [] ) to prevent crashes
+            const seasonIndex = (show.seasonData || []).findIndex(s => s.number === show.season);
+            
             if (seasonIndex > -1) {
-                // Check if we have detailed episodes for this season
                 if (!show.seasonData[seasonIndex].episodeList) {
                     const epList = await API.getSeasonEpisodes(show.tmdbId, show.season);
                     if (epList) {
                         show.seasonData[seasonIndex].episodeList = epList;
-                        await DB.saveShow(show); // Cache it
+                        await DB.saveShow(show);
                     }
                 }
             }
         }
 
+        // Open Modal
         document.getElementById('modal').classList.remove('hidden');
         UI.renderChecklist(show);
     },
@@ -55,9 +77,14 @@ const app = {
     closeModal() {
         document.getElementById('modal').classList.add('hidden');
         document.getElementById('settingsModal').classList.add('hidden');
-        document.getElementById('modalBody').innerHTML = '';
-        document.getElementById('convertId').value = ''; 
-        document.getElementById('showId').value = '';
+        const body = document.getElementById('modalBody');
+        if (body) body.innerHTML = '';
+        
+        // Clear hidden inputs
+        const cvt = document.getElementById('convertId');
+        if (cvt) cvt.value = ''; 
+        const sid = document.getElementById('showId');
+        if (sid) sid.value = '';
     },
 
     // TRIGGER: When user clicks a search result
@@ -69,7 +96,7 @@ const app = {
         }
 
         const details = await API.getDetails(tmdbId);
-        if (!details) return alert("Failed to fetch details");
+        if (!details) return alert("Failed to fetch details. Check internet or API Key.");
 
         const convertId = document.getElementById('convertId').value;
         if (convertId) {
@@ -115,14 +142,6 @@ const app = {
             const seasonSelect = document.getElementById('seasonSelect');
             const selectedSeason = parseInt(seasonSelect.value) || 1;
             
-            // Smart History Logic:
-            // If the user picked a season, we default to episode 0 (none watched)
-            // But if they are "editing", we keep current.
-            // *Requirement*: "Starting tracking a show when you are in the middle... started from zero but all other episodes already checked"
-            // Implementation: The user usually just adds the show. If they want to be at Ep 5, they click Ep 5 in the checklist.
-            // But if we want to support "Select Season -> Start at End of Season?" No, simplest is start at 0.
-            // The Checklist UI handles the "Check one, check all previous" logic.
-
             showData = {
                 title: document.getElementById('title').value,
                 tmdbId: apiIdEl.value,
@@ -150,6 +169,11 @@ const app = {
             if (apiIdEl.value) {
                 const old = await DB.getShow(editId);
                 showData.episode = old.episode;
+                // If switching seasons, maybe reset? Defaulting to keep episode count or 0 if season changed could be complex. 
+                // For now, if season changed in dropdown, it overrides.
+                if (old.season !== showData.season) {
+                    showData.episode = 0; 
+                }
             }
         }
 
@@ -163,48 +187,43 @@ const app = {
         const btn = document.getElementById(`btn-del-${id}`);
         if (!btn) return;
 
-        if (btn.innerText === "×") {
+        if (btn.getAttribute('data-confirm') !== 'true') {
             // First Click
-            btn.innerText = "?";
+            const originalText = btn.innerText;
+            btn.innerText = "Sure?";
             btn.style.background = "var(--error)";
             btn.style.color = "white";
+            btn.setAttribute('data-confirm', 'true');
+            
+            // Reset after 3 seconds
             setTimeout(() => {
-                // Reset after 3 seconds if not clicked
                 if (btn && document.body.contains(btn)) {
-                    btn.innerText = "×";
-                    btn.style.background = "#3f1a1a";
-                    btn.style.color = "var(--error)";
+                    btn.innerText = originalText;
+                    btn.style.background = ""; // revert to css
+                    btn.style.color = "";
+                    btn.removeAttribute('data-confirm');
                 }
             }, 3000);
         } else {
             // Second Click (Confirmed)
             await DB.deleteShow(id);
+            this.closeModal(); // Close if we were in the modal
             UI.renderList();
         }
     },
 
-    // Checklist Logic: Set Episode
     async setEpisode(id, epNum) {
         const show = await DB.getShow(id);
         
-        // Toggle logic: If clicking the exact current episode, maybe uncheck it? 
-        // Standard "Binge" logic: Clicking 5 means "I watched 5". 
-        // If 5 is already current, maybe they want to go back to 4?
-        // Let's stick to: Click X -> Set progress to X.
-        
-        if (show.episode === epNum) {
-             // Optional: Toggle off? Let's assume clicking again does nothing or unchecks.
-             // Let's allow unchecking only the last one.
-             show.episode = epNum - 1;
-        } else {
-            show.episode = epNum;
-        }
-
+        // Logic: Click X -> Set progress to X.
+        // If clicking the current episode, toggle back one? 
+        // Optional: Let's keep it simple. Click = Set.
+        show.episode = epNum;
         show.updated = Date.now();
+        
         await DB.saveShow(show);
-        // Re-render checklist inplace
         UI.renderChecklist(show); 
-        UI.renderList(); // Update background list
+        UI.renderList(); 
     },
 
     async startSeason(id, newSeason) {
@@ -213,6 +232,8 @@ const app = {
         show.episode = 0;
         show.updated = Date.now();
         await DB.saveShow(show);
+        
+        // Refresh the checklist for the new season
         this.openChecklist(id);
         UI.renderList();
     }
@@ -224,7 +245,10 @@ window.openModal = app.openModal;
 window.closeSettings = () => document.getElementById('settingsModal').classList.add('hidden');
 window.openSettings = () => {
     document.getElementById('settingsModal').classList.remove('hidden');
-    const key = localStorage.getItem('tmdb_key'); 
+    // Pre-fill key if available logic is handled in init, but safe to check here too
+    DB.getSetting('tmdb_key').then(k => {
+        if(k) document.getElementById('apiKeyInput').value = k;
+    });
 };
 window.saveSettings = async () => {
     const key = document.getElementById('apiKeyInput').value.trim();
@@ -256,6 +280,7 @@ window.importData = async (e) => {
                 for (const item of data) await DB.saveShow(item);
                 UI.renderList();
                 alert("Import Successful!");
+                closeSettings();
             }
         } catch(err) { alert("Invalid Backup File"); }
     };
