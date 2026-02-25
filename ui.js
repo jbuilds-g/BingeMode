@@ -1,10 +1,11 @@
 const UI = {
     async renderList() {
         const list = document.getElementById('showList');
-        const shows = await DB.getAllShows();
+        // Fallback to empty array if DB fails
+        const shows = (await DB.getAllShows()) || []; 
         list.innerHTML = '';
 
-        if (!shows || shows.length === 0) {
+        if (shows.length === 0) {
             list.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:60px; color:var(--text-dim);">
                 <h3>Library Empty</h3>
                 <p>Tap the + button to add a show.</p>
@@ -25,14 +26,13 @@ const UI = {
 
             let metaInfo = '';
             let progressHtml = '';
-            let clickAction = '';
+            let actionType = '';
 
             if (show.tmdbId) {
                 // API Mode
-                clickAction = `onclick="app.openChecklist(${show.id})"`;
+                actionType = 'open-checklist';
                 const sData = show.seasonData ? show.seasonData.find(s => s.number === show.season) : null;
                 const totalEps = sData ? sData.episodes : 0;
-                
                 let pct = (totalEps > 0) ? (show.episode / totalEps) * 100 : 0;
                 
                 metaInfo = `<span>Season ${show.season}</span> <span>${show.episode}/${totalEps}</span>`;
@@ -41,29 +41,23 @@ const UI = {
                 if (show.episode >= totalEps && totalEps > 0) {
                     metaInfo = `<span style="color:var(--success)">Finished S${show.season}</span>`;
                 }
-
             } else {
                 // Manual Mode
-                // For manual mode, we render edit controls on the card or just basic info
-                // Per design request: "Make it easy to delete... ask twice"
-                // The delete button is best placed in the edit modal OR a dedicated small action area.
-                // Let's put a small action row for manual items since they don't have a checklist.
-                
-                clickAction = `onclick="app.openEdit(${show.id})"`;
+                actionType = 'open-edit';
                 metaInfo = `<span>S${show.season} • E${show.episode}</span>`;
-                
-                // Add mini delete button stopping propagation
-                metaInfo += `<button id="btn-del-${show.id}" class="danger" style="padding:4px 8px; font-size:12px; border-radius:4px; margin-left:auto;" onclick="event.stopPropagation(); app.confirmDelete(${show.id})">×</button>`;
+                metaInfo += `<button class="danger delete-btn" data-action="delete-show" data-id="${show.id}" style="padding:4px 8px; font-size:12px; border-radius:4px; margin-left:auto;">×</button>`;
             }
 
+            // Note: The main card div gets the primary action
+            card.setAttribute('data-action', actionType);
+            card.setAttribute('data-id', show.id);
+
             card.innerHTML = `
-                <div onclick="(${clickAction})">
-                    ${imgHtml}
-                    <div class="card-content">
-                        <div class="card-title">${show.title}</div>
-                        <div class="card-meta">${metaInfo}</div>
-                        ${progressHtml}
-                    </div>
+                ${imgHtml}
+                <div class="card-content">
+                    <div class="card-title">${show.title}</div>
+                    <div class="card-meta">${metaInfo}</div>
+                    ${progressHtml}
                 </div>
             `;
             list.appendChild(card);
@@ -75,24 +69,25 @@ const UI = {
         const title = document.getElementById('modalTitle');
         title.innerText = show.title;
 
-        // Get Data
+        // Safe Access for Season Data
         const sData = show.seasonData ? show.seasonData.find(s => s.number === show.season) : null;
-        const totalEps = sData ? sData.episodes : (show.episode + 5); // Fallback
+        const totalEps = sData ? sData.episodes : (show.episode + 5);
         const episodesList = sData && sData.episodeList ? sData.episodeList : [];
 
-        // Build List
         let listHtml = `<div class="checklist-list">`;
         
         for (let i = 1; i <= totalEps; i++) {
             const isWatched = i <= show.episode;
-            
-            // Try to find episode name
             let epName = `Episode ${i}`;
             let epObj = episodesList.find(e => e.number === i);
             if (epObj) epName = epObj.name;
 
+            // Using Data Attributes for Event Delegation
             listHtml += `
-                <div class="ep-row ${isWatched ? 'watched' : ''}" onclick="app.setEpisode(${show.id}, ${i})">
+                <div class="ep-row ${isWatched ? 'watched' : ''}" 
+                     data-action="set-episode" 
+                     data-id="${show.id}" 
+                     data-ep="${i}">
                     <div class="checkbox"></div>
                     <div class="ep-info">
                         <div class="ep-num">S${show.season} E${i}</div>
@@ -103,22 +98,20 @@ const UI = {
         }
         listHtml += `</div>`;
 
-        // Next Season Button if finished
         let nextHtml = '';
         if (show.episode >= totalEps && totalEps > 0) {
-            const nextS = show.seasonData.find(s => s.number === show.season + 1);
+            const nextS = show.seasonData && show.seasonData.find(s => s.number === show.season + 1);
             if (nextS) {
                 nextHtml = `<div style="text-align:center; margin-top:20px;">
-                    <button onclick="app.startSeason(${show.id}, ${show.season+1})">Start Season ${show.season+1}</button>
+                    <button data-action="start-season" data-id="${show.id}" data-season="${show.season+1}">Start Season ${show.season+1}</button>
                 </div>`;
             }
         }
 
-        // Action Footer
         const footerHtml = `
             <div style="margin-top:24px; display:flex; justify-content:space-between; border-top:1px solid #333; padding-top:16px;">
-                <button class="secondary danger" id="btn-del-${show.id}" onclick="app.confirmDelete(${show.id})">Delete Show</button>
-                <button class="secondary" onclick="app.openEdit(${show.id})">Edit</button>
+                <button class="secondary danger" data-action="delete-show" data-id="${show.id}">Delete Show</button>
+                <button class="secondary" data-action="open-edit" data-id="${show.id}">Edit</button>
             </div>
         `;
 
@@ -176,12 +169,11 @@ const UI = {
                 </div>
 
                 <div class="modal-footer" style="margin-top:20px;">
-                    <button onclick="app.saveShow()" style="width:100%">Save Show</button>
+                    <button id="saveBtn" data-action="save-show" style="width:100%">Save Show</button>
                 </div>
             </div>
         `;
 
-        // Attach Search Listener with Debounce
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             let timeout = null;
@@ -207,6 +199,9 @@ const UI = {
         results.forEach(item => {
             const div = document.createElement('div');
             div.className = 'search-item';
+            div.setAttribute('data-action', 'select-api-show');
+            div.setAttribute('data-tmdb-id', item.id); 
+            
             div.innerHTML = `
                 <img src="${item.poster || ''}" style="width:36px; height:54px; object-fit:cover; background:#333; border-radius:4px;">
                 <div>
@@ -214,8 +209,6 @@ const UI = {
                     <div style="font-size:0.75rem; color:#888;">${item.first_air_date ? item.first_air_date.substring(0,4) : ''}</div>
                 </div>
             `;
-            // Pass 'div' to animate it on click
-            div.onclick = () => app.selectApiShow(item.id, div);
             container.appendChild(div);
         });
     },
