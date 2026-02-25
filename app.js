@@ -1,8 +1,11 @@
 const app = {
     async init() {
+        // 1. Setup Listeners FIRST so buttons work immediately
+        this.setupEventListeners();
+
+        // 2. Then load data
         await API.init(); 
         await UI.renderList();
-        this.setupEventListeners();
 
         const key = await DB.getSetting('tmdb_key');
         if (key) {
@@ -12,8 +15,10 @@ const app = {
     },
 
     setupEventListeners() {
-        // GLOBAL CLICK DELEGATION
         document.body.addEventListener('click', async (e) => {
+            // Debugging: See what was clicked
+            // console.log('Click:', e.target);
+
             // 1. Check for Backdrops (closing modals)
             if (e.target.classList.contains('modal-backdrop')) {
                 this.closeModal();
@@ -26,54 +31,61 @@ const app = {
             if (!target) return;
 
             const action = target.dataset.action;
-            const id = parseInt(target.dataset.id);
+            const id = target.dataset.id ? parseInt(target.dataset.id) : null;
+
+            console.log(`Action: ${action}, ID: ${id}`);
 
             // 3. Route Actions
-            switch(action) {
-                // Modals
-                case 'open-add-show':
-                    this.openModal();
-                    break;
-                case 'close-modal':
-                    this.closeModal();
-                    break;
-                case 'open-settings':
-                    this.openSettings();
-                    break;
-                case 'close-settings':
-                    this.closeSettings();
-                    break;
-                
-                // Settings Logic
-                case 'save-settings':
-                    this.saveSettings();
-                    break;
-                case 'export-data':
-                    this.exportData();
-                    break;
+            try {
+                switch(action) {
+                    // Modals
+                    case 'open-add-show':
+                        this.openModal();
+                        break;
+                    case 'close-modal':
+                        this.closeModal();
+                        break;
+                    case 'open-settings':
+                        this.openSettings();
+                        break;
+                    case 'close-settings':
+                        this.closeSettings();
+                        break;
+                    
+                    // Settings Logic
+                    case 'save-settings':
+                        this.saveSettings();
+                        break;
+                    case 'export-data':
+                        this.exportData();
+                        break;
 
-                // Show Actions
-                case 'open-checklist':
-                    this.openChecklist(id);
-                    break;
-                case 'open-edit':
-                    this.openEdit(id);
-                    break;
-                case 'delete-show':
-                    this.confirmDelete(id, target);
-                    break;
-                case 'set-episode':
-                    this.setEpisode(id, parseInt(target.dataset.ep));
-                    break;
-                case 'start-season':
-                    this.startSeason(id, parseInt(target.dataset.season));
-                    break;
-                case 'save-show':
-                    this.saveShow();
-                    break;
-                case 'select-api-show':
-                    this.selectApiShow(parseInt(target.dataset.tmdbId), target);
-                    break;
+                    // Show Actions
+                    case 'open-checklist':
+                        if (id) this.openChecklist(id);
+                        break;
+                    case 'open-edit':
+                        if (id) this.openEdit(id);
+                        break;
+                    case 'delete-show':
+                        if (id) this.confirmDelete(id, target);
+                        break;
+                    case 'set-episode':
+                        if (id) this.setEpisode(id, parseInt(target.dataset.ep));
+                        break;
+                    case 'start-season':
+                        if (id) this.startSeason(id, parseInt(target.dataset.season));
+                        break;
+                    case 'save-show':
+                        this.saveShow();
+                        break;
+                    case 'select-api-show':
+                        this.selectApiShow(parseInt(target.dataset.tmdbId), target);
+                        break;
+                }
+            } catch (err) {
+                console.error("Action Error:", err);
+                alert("Error: " + err.message);
             }
         });
     },
@@ -122,39 +134,49 @@ const app = {
     },
 
     async openChecklist(id) {
-        let show = await DB.getShow(id);
-        if (!show) return;
+        try {
+            let show = await DB.getShow(id);
+            if (!show) throw new Error("Show not found in Database");
 
-        // Auto-Heal: Fetch missing season data
-        if (show.tmdbId && API.hasKey()) {
-            let updated = false;
-            
-            // 1. Missing Season Data?
-            if (!show.seasonData || !Array.isArray(show.seasonData)) {
-                const details = await API.getDetails(show.tmdbId);
-                if (details && details.seasonData) {
-                    show.seasonData = details.seasonData;
-                    updated = true;
-                }
-            }
-
-            // 2. Missing Episode Names?
-            const seasonIndex = (show.seasonData || []).findIndex(s => s.number === show.season);
-            if (seasonIndex > -1) {
-                if (!show.seasonData[seasonIndex].episodeList) {
-                    const epList = await API.getSeasonEpisodes(show.tmdbId, show.season);
-                    if (epList) {
-                        show.seasonData[seasonIndex].episodeList = epList;
+            // Auto-Heal: Fetch missing season data
+            if (show.tmdbId && API.hasKey()) {
+                let updated = false;
+                
+                // 1. Missing Season Data?
+                if (!show.seasonData || !Array.isArray(show.seasonData)) {
+                    console.log("Fixing missing seasonData...");
+                    const details = await API.getDetails(show.tmdbId);
+                    if (details && details.seasonData) {
+                        show.seasonData = details.seasonData;
                         updated = true;
                     }
                 }
+
+                // 2. Missing Episode Names?
+                // Check if 'seasonData' exists before finding index to avoid crash
+                if (show.seasonData) {
+                    const seasonIndex = show.seasonData.findIndex(s => s.number === show.season);
+                    if (seasonIndex > -1) {
+                        if (!show.seasonData[seasonIndex].episodeList) {
+                            console.log("Fetching episode names...");
+                            const epList = await API.getSeasonEpisodes(show.tmdbId, show.season);
+                            if (epList) {
+                                show.seasonData[seasonIndex].episodeList = epList;
+                                updated = true;
+                            }
+                        }
+                    }
+                }
+
+                if (updated) await DB.saveShow(show);
             }
 
-            if (updated) await DB.saveShow(show);
+            document.getElementById('modal').classList.remove('hidden');
+            UI.renderChecklist(show);
+        } catch (err) {
+            console.error(err);
+            alert("Could not open checklist: " + err.message);
         }
-
-        document.getElementById('modal').classList.remove('hidden');
-        UI.renderChecklist(show);
     },
 
     closeModal() {
@@ -296,7 +318,6 @@ const app = {
     }
 };
 
-// Global export just for Import function called by onchange
 window.importData = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
