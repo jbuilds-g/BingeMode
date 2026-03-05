@@ -2,7 +2,7 @@
 
 > **Track your series. Zero fluff.**
 
-BingeMode is a lightweight, privacy-focused TV show tracker. It runs entirely in your browser using local storage, with optional TMDB integration for rich metadata.
+.> BingeMode is a lightweight, privacy-focused TV show tracker. It runs entirely in your browser using local storage, with optional TMDB integration for rich metadata.
 ---
 ## 🚀 Features
 - **Smart Tracking:** Connect TMDB API to get automatic season/episode counts and covers.
