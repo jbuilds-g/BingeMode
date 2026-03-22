@@ -1,4 +1,4 @@
-const CACHE_NAME = "bingemode-v7";
+const CACHE_NAME = "bingemode-v8";
 
 const ASSETS = [
   "./",
