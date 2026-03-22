@@ -28,6 +28,8 @@ body {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
+    /* Disable the default mobile tap highlight flash */
+    -webkit-tap-highlight-color: transparent; 
 }
 
 /* Header */
