@@ -94,6 +94,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
         val episodeNum: Int,
         val previousWatchedEpisodes: String,
         val previousEpisodeCount: Int,
+        val previousAutoCheckLastRun: Long = 0L,
         val triggerTime: String
     )
     
@@ -125,6 +126,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                         episodeNum = parts[3].toIntOrNull() ?: 0,
                         previousWatchedEpisodes = parts[4],
                         previousEpisodeCount = parts[5].toIntOrNull() ?: 0,
+                        previousAutoCheckLastRun = parts.getOrNull(7)?.toLongOrNull() ?: 0L,
                         triggerTime = parts[6]
                     )
                 }
@@ -142,7 +144,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
             if (banner == null) {
                 repository.saveSetting("auto_mark_banner", null)
             } else {
-                val str = "${banner.showId}|${banner.showName}|${banner.seasonNum}|${banner.episodeNum}|${banner.previousWatchedEpisodes}|${banner.previousEpisodeCount}|${banner.triggerTime}"
+                val str = "${banner.showId}|${banner.showName}|${banner.seasonNum}|${banner.episodeNum}|${banner.previousWatchedEpisodes}|${banner.previousEpisodeCount}|${banner.triggerTime}|${banner.previousAutoCheckLastRun}"
                 repository.saveSetting("auto_mark_banner", str)
             }
         }
@@ -159,6 +161,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
             val updatedShow = show.copy(
                 episode = banner.previousEpisodeCount,
                 watchedEpisodes = banner.previousWatchedEpisodes,
+                autoCheckLastRun = if (banner.previousAutoCheckLastRun > 0L) banner.previousAutoCheckLastRun else show.autoCheckLastRun,
                 updated = System.currentTimeMillis()
             )
             repository.saveShow(updatedShow)
@@ -1222,6 +1225,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                         episodeNum = episodeNum,
                         previousWatchedEpisodes = prevEps,
                         previousEpisodeCount = prevCount,
+                        previousAutoCheckLastRun = updatedShow.autoCheckLastRun,
                         triggerTime = currentTime
                     )
                     saveAutoMarkBanner(bannerState)
