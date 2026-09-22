@@ -34,6 +34,15 @@ android {
     }
   }
 
+  splits {
+    abi {
+      isEnable = true
+      reset()
+      include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+      isUniversalApk = true
+    }
+  }
+
   buildTypes {
     release {
       isCrunchPngs = false
@@ -57,11 +66,18 @@ android {
   }
 
   testOptions { unitTests { isIncludeAndroidResources = true } }
+
+  dependenciesInfo {
+    includeInApk = false
+    includeInBundle = true
+  }
 }
 
 dependencies {
   implementation(platform(libs.androidx.compose.bom))
   implementation(libs.androidx.activity.compose)
+  implementation(libs.androidx.lifecycle.runtime.compose)
+  implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.compose.material.icons.core)
   implementation(libs.androidx.compose.material.icons.extended)
   implementation(libs.androidx.compose.material3)

@@ -1073,46 +1073,75 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
         }
     }
 
-    // Import Backup JSON string
+    // Import Backup JSON string.
+    // Legacy backups are raw Show arrays. New backups use a versioned envelope
+    // containing both shows and settings.
     fun importBackup(jsonString: String, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
-                // Let's use Moshi to parse List<Show>
-                val type = com.squareup.moshi.Types.newParameterizedType(List::class.java, Show::class.java)
-                val adapter: com.squareup.moshi.JsonAdapter<List<Show>> = moshi.adapter(type)
-                val shows = adapter.fromJson(jsonString)
-                if (shows != null) {
-                    for (show in shows) {
-                        repository.saveShow(show)
-                    }
-                    onComplete(true)
-                    _toastMessage.value = "Backup successfully restored!"
-                } else {
+                val normalizedJson = jsonString.trim()
+                if (normalizedJson.isEmpty()) {
+                    _toastMessage.value = "Backup file is empty."
                     onComplete(false)
+                    return@launch
                 }
+
+                val showListType = com.squareup.moshi.Types.newParameterizedType(List::class.java, Show::class.java)
+                val showListAdapter: com.squareup.moshi.JsonAdapter<List<Show>> = moshi.adapter(showListType)
+                val envelopeAdapter = moshi.adapter(BackupEnvelope::class.java)
+
+                val envelope = try {
+                    envelopeAdapter.fromJson(normalizedJson)
+                } catch (_: Exception) {
+                    null
+                }
+
+                val shows: List<Show>
+                val settings: List<com.example.data.model.Setting>
+                if (envelope != null && envelope.shows != null) {
+                    shows = envelope.shows
+                    settings = envelope.settings ?: emptyList()
+                } else {
+                    // Older format: [ { ...show... }, ... ]
+                    shows = showListAdapter.fromJson(normalizedJson) ?: throw IllegalArgumentException("Invalid backup format")
+                    settings = emptyList()
+                }
+
+                val restoredCount = repository.restoreBackup(shows, settings)
+                _activeChecklistShow.value = null
+                loadApiKey()
+                loadThemeMode()
+                loadAutoMarkBanner()
+                _toastMessage.value = "Backup restored: " + restoredCount + " show(s) and " + settings.size + " setting(s)."
+                onComplete(true)
             } catch (e: Exception) {
                 e.printStackTrace()
+                _toastMessage.value = "Backup restore failed: " + (e.message ?: "unknown error")
                 onComplete(false)
             }
         }
     }
 
-    // Export Backup JSON string
+    // Export a versioned backup containing the full local app state.
     fun exportBackup(onComplete: (String) -> Unit) {
         viewModelScope.launch {
             try {
                 val showsList = repository.getAllShowsList()
-                val type = com.squareup.moshi.Types.newParameterizedType(List::class.java, Show::class.java)
-                val adapter: com.squareup.moshi.JsonAdapter<List<Show>> = moshi.adapter(type)
-                val json = adapter.toJson(showsList)
-                onComplete(json)
+                val settingsList = repository.getAllSettings()
+                onComplete(moshi.adapter(BackupEnvelope::class.java).toJson(BackupEnvelope(2, showsList, settingsList)))
             } catch (e: Exception) {
                 e.printStackTrace()
+                _toastMessage.value = "Backup export failed: " + (e.message ?: "unknown error")
                 onComplete("[]")
             }
         }
     }
 
+    private data class BackupEnvelope(
+        val version: Int = 2,
+        val shows: List<Show>? = emptyList(),
+        val settings: List<com.example.data.model.Setting>? = emptyList()
+    )
     private var autoCheckReceiver: android.content.BroadcastReceiver? = null
 
     private fun startAutoCheckScanner() {

@@ -10,13 +10,15 @@ import com.example.data.model.EpisodeInfo
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.flow.Flow
+import androidx.room.withTransaction
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 class BingeRepository(context: Context) {
-    private val db = BingeModeDatabase.getDatabase(context)
+    val context: Context = context.applicationContext
+    private val db = BingeModeDatabase.getDatabase(this.context)
     private val showDao = db.showDao()
     private val settingDao = db.settingDao()
 
@@ -56,6 +58,33 @@ class BingeRepository(context: Context) {
 
     suspend fun deleteShowById(id: Int) {
         showDao.deleteShowById(id)
+    }
+
+    /**
+     * Replaces the tracked-show database contents with a backup.
+     *
+     * Backup IDs are intentionally discarded because Room auto-generates primary keys.
+     * This makes backups portable across installs/devices and prevents stale IDs from
+     * colliding with records that already exist in the destination database.
+     */
+    suspend fun getAllSettings(): List<Setting> = settingDao.getAllSettings()
+
+    suspend fun restoreBackup(shows: List<Show>, settings: List<Setting>): Int {
+        db.withTransaction {
+            showDao.deleteAllShows()
+            settingDao.deleteAllSettings()
+
+            shows.forEach { show ->
+                showDao.insertShow(
+                    show.copy(id = 0, updated = show.updated)
+                )
+            }
+
+            settings.forEach { setting ->
+                settingDao.insertSetting(setting)
+            }
+        }
+        return shows.size
     }
 
     // Settings
