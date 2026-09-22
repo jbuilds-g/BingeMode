@@ -42,10 +42,27 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: gradle assembleRelease
 
+      - name: Verify release APKs
+        run: |
+          echo "Release APKs:"
+          find app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' -print | sort
+
+          expected=(
+            "app/build/outputs/apk/release/app-universal-release.apk"
+            "app/build/outputs/apk/release/app-armeabi-v7a-release.apk"
+            "app/build/outputs/apk/release/app-arm64-v8a-release.apk"
+            "app/build/outputs/apk/release/app-x86-release.apk"
+            "app/build/outputs/apk/release/app-x86_64-release.apk"
+          )
+
+          for apk in "${expected[@]}"; do
+            test -f "$apk" || { echo "Missing expected APK: $apk"; exit 1; }
+          done
+
       - name: Upload release APKs
         uses: actions/upload-artifact@v4
         with:
-          name: BingeMode-release
+          name: BingeMode-release-apks
           path: app/build/outputs/apk/release/*.apk
 
       - name: Remove release keystore
