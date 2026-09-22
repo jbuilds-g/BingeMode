@@ -8,6 +8,7 @@ data class Show(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String,
     val tmdbId: Int? = null,
+    val mediaType: String = "tv",
     val poster: String? = null,
     val status: String? = null,
     val rating: Double = 0.0,
