@@ -318,7 +318,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
 
     fun trackDiscoveredShow(discovered: Show, context: android.content.Context? = null) {
         viewModelScope.launch {
-            val isUpcomingMovie = discovered.status == "Movie" && (
+            val isUpcomingMovie = discovered.mediaType == "movie" && (
                 discovered.rating <= 0.0 || 
                 listOf(1000001, 1000002, 1000003).contains(discovered.tmdbId) || 
                 discovered.title.contains("(2025)") || 
