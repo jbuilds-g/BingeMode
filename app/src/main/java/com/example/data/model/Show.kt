@@ -1,9 +1,11 @@
 package com.example.data.model
 
 import androidx.room.Entity
+import com.squareup.moshi.JsonClass
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "shows")
+@JsonClass(generateAdapter = true)
 data class Show(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String,
@@ -26,12 +28,14 @@ data class Show(
     val watchedEpisodes: String = ""
 )
 
+@JsonClass(generateAdapter = true)
 data class SeasonInfo(
     val number: Int,
     val episodes: Int,
     val episodeList: List<EpisodeInfo>? = null
 )
 
+@JsonClass(generateAdapter = true)
 data class EpisodeInfo(
     val number: Int,
     val name: String,
@@ -39,6 +43,7 @@ data class EpisodeInfo(
 )
 
 @Entity(tableName = "settings")
+@JsonClass(generateAdapter = true)
 data class Setting(
     @PrimaryKey val key: String,
     val value: String?
