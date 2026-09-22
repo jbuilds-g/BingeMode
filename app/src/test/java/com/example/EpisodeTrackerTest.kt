@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.data.model.Show
 import com.example.utils.EpisodeTracker
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
