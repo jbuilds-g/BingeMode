@@ -10,6 +10,7 @@ import com.example.data.model.EpisodeInfo
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.flow.Flow
+import androidx.room.withTransaction
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -57,6 +58,28 @@ class BingeRepository(context: Context) {
 
     suspend fun deleteShowById(id: Int) {
         showDao.deleteShowById(id)
+    }
+
+    /**
+     * Replaces the tracked-show database contents with a backup.
+     *
+     * Backup IDs are intentionally discarded because Room auto-generates primary keys.
+     * This makes backups portable across installs/devices and prevents stale IDs from
+     * colliding with records that already exist in the destination database.
+     */
+    suspend fun restoreShows(shows: List<Show>): Int {
+        db.withTransaction {
+            showDao.deleteAllShows()
+            shows.forEach { show ->
+                showDao.insertShow(
+                    show.copy(
+                        id = 0,
+                        updated = show.updated
+                    )
+                )
+            }
+        }
+        return shows.size
     }
 
     // Settings
