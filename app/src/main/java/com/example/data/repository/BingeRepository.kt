@@ -15,7 +15,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-class BingeRepository(val context: Context) {
+class BingeRepository(context: Context) {
     private val db = BingeModeDatabase.getDatabase(context)
     private val showDao = db.showDao()
     private val settingDao = db.settingDao()
@@ -26,7 +26,7 @@ class BingeRepository(val context: Context) {
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (com.example.BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         })
         .build()
 
