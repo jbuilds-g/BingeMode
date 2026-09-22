@@ -84,8 +84,9 @@ class BingeRepository(context: Context) {
                 }
 
             shows.forEach { show ->
+                val normalizedMediaType = if (show.mediaType == "tv" && show.status == "Movie") "movie" else show.mediaType
                 showDao.insertShow(
-                    show.copy(id = 0, updated = show.updated)
+                    show.copy(id = 0, mediaType = normalizedMediaType, updated = show.updated)
                 )
             }
         }
