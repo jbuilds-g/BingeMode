@@ -33,6 +33,17 @@ object BackupParser {
     )
     private val envelopeAdapter: JsonAdapter<Envelope> = moshi.adapter(Envelope::class.java)
 
+    fun serialize(shows: List<Show>, settings: List<Setting>): String {
+        val safeSettings = settings.filter { it.key != TMDB_KEY_SETTING }
+        return envelopeAdapter.toJson(
+            Envelope(
+                version = CURRENT_VERSION,
+                shows = shows,
+                settings = safeSettings
+            )
+        )
+    }
+
     fun parse(json: String): BackupPayload {
         val normalized = json.trim()
         require(normalized.isNotEmpty()) { "Backup file is empty" }
