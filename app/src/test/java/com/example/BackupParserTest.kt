@@ -5,6 +5,7 @@ import com.example.data.model.Show
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BackupParserTest {
@@ -58,8 +59,8 @@ class BackupParserTest {
             )
         )
 
-        assert(json.contains(""version":2"))
+        assertTrue(json.contains(""version":2"))
         assertFalse(json.contains("secret"))
-        assert(json.contains("display_mode"))
+        assertTrue(json.contains("display_mode"))
     }
 }
