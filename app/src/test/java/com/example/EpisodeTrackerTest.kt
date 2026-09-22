@@ -60,4 +60,36 @@ class EpisodeTrackerTest {
         assertTrue(uncheckSet.contains(3))
         assertEquals(setOf(1, 3), EpisodeTracker.getWatchedEpisodesForSeason(uncheckStr, 1))
     }
+    @Test
+    fun testLegacyFormatMapsToSeasonOne() {
+        val raw = "1,3,5"
+        assertEquals(setOf(1, 3, 5), EpisodeTracker.getAllSeasonsWatchedMap(raw, 3)[1])
+        assertTrue(EpisodeTracker.getWatchedEpisodesForSeason(raw, 3).isEmpty())
+    }
+
+    @Test
+    fun testSequentialProgressPreservesNonContiguousEpisodes() {
+        val raw = EpisodeTracker.serializeMap(mapOf(1 to setOf(1, 3, 5)))
+        val (updated, watched) = EpisodeTracker.setSequentialProgress(raw, 1, 3)
+
+        assertEquals(setOf(1, 3, 5), watched)
+        assertEquals(setOf(1, 3, 5), EpisodeTracker.getWatchedEpisodesForSeason(updated, 1))
+    }
+
+    @Test
+    fun testCompletionRequiresEveryEpisode() {
+        val incomplete = Show(
+            title = "Test",
+            seasonData = listOf(com.example.data.model.SeasonInfo(1, 3)),
+            watchedEpisodes = EpisodeTracker.serializeMap(mapOf(1 to setOf(1, 3)))
+        )
+        val complete = incomplete.copy(
+            watchedEpisodes = EpisodeTracker.serializeMap(mapOf(1 to setOf(1, 2, 3)))
+        )
+
+        assertFalse(EpisodeTracker.isEntireShowCompleted(incomplete))
+        assertTrue(EpisodeTracker.isEntireShowCompleted(complete))
+    }
+
 }
+
