@@ -211,6 +211,7 @@ class BingeRepository(context: Context) {
                     title = item.title,
                     tmdbId = item.id,
                     poster = posterUrl,
+                    mediaType = "movie",
                     status = "Movie",
                     rating = item.voteAverage ?: 0.0,
                     seasonData = emptyList(),
