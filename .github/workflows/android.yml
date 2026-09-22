@@ -35,6 +35,9 @@ jobs:
         run: |
           echo "$KEYSTORE_BASE64" | base64 --decode > my-upload-key-2.jks
 
+      - name: Run unit tests
+        run: gradle test
+
       - name: Build release-signed APKs
         env:
           KEYSTORE_PATH: ${{ github.workspace }}/my-upload-key-2.jks
