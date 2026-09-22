@@ -20,7 +20,7 @@ object BackupParser {
     const val TMDB_KEY_SETTING = "tmdb_key"
 
     @JsonClass(generateAdapter = true)
-    private data class Envelope(
+    internal data class Envelope(
         val version: Int,
         val shows: List<Show>? = emptyList(),
         val settings: List<Setting>? = emptyList()
