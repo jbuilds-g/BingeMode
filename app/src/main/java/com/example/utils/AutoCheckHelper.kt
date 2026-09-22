@@ -348,7 +348,19 @@ object AutoCheckHelper {
 
             while (remaining > 0) {
                 val seasonObj = seasonsList.find { it.number == curSeason }
-                val maxEpsInCurSeason = seasonObj?.episodes ?: maxOf(currentShow.episode, 10)
+                var maxEpsInCurSeason = seasonObj?.episodes ?: 0
+                if (maxEpsInCurSeason <= 0 && currentShow.tmdbId != null && tmdbApiKey.isNotBlank()) {
+                    val fetchedEpisodes = repository.getSeasonEpisodes(currentShow.tmdbId, curSeason)
+                    if (fetchedEpisodes != null) {
+                        maxEpsInCurSeason = fetchedEpisodes.size
+                        seasonsList = seasonsList.map { s ->
+                            if (s.number == curSeason) s.copy(episodes = fetchedEpisodes.size, episodeList = fetchedEpisodes) else s
+                        }
+                    }
+                }
+                if (maxEpsInCurSeason <= 0) {
+                    break
+                }
                 val watchedInCurSeason = EpisodeTracker.getWatchedEpisodesForSeason(workingWatched, curSeason)
 
                 // Find next unwatched episode in this season
@@ -462,7 +474,7 @@ object AutoCheckHelper {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
-        notificationManager.notify(1002, notification)
+        notificationManager.notify(currentShow.id + 30000, notification)
 
         // Broadcast to update UI and trigger in-app banner
         val updateIntent = Intent("com.example.ACTION_AUTO_CHECK_COMPLETED").apply {
