@@ -61,12 +61,13 @@ object EpisodeTracker {
                 }
             }
         } else {
-            // Legacy format: map to the current active season
+            // Legacy format always represented season 1.
+            // Keep this consistent with getWatchedEpisodesForSeason().
             val legacyEps = raw.split(",")
                 .mapNotNull { it.trim().toIntOrNull() }
                 .toMutableSet()
             if (legacyEps.isNotEmpty()) {
-                resultMap[currentSeason] = legacyEps
+                resultMap[1] = legacyEps
             }
         }
 
@@ -111,11 +112,13 @@ object EpisodeTracker {
         val currentSet = getWatchedEpisodesForSeason(raw, seasonNum)
         val currentMax = currentSet.maxOrNull() ?: 0
 
-        val newSet: Set<Int> = if (currentMax == targetEpisodeNum) {
-            // Clicking current top unmarks it
-            if (targetEpisodeNum > 1) (1 until targetEpisodeNum).toSet() else emptySet()
+        val newSet = currentSet.toMutableSet()
+        if (currentMax == targetEpisodeNum) {
+            // Unmark only the selected top episode. Preserve any non-contiguous progress.
+            newSet.remove(targetEpisodeNum)
         } else {
-            (1..targetEpisodeNum).toSet()
+            // Fill the sequential range without deleting episodes already watched beyond it.
+            newSet.addAll(1..targetEpisodeNum)
         }
 
         val updatedRaw = setWatchedEpisodesForSeason(raw, seasonNum, newSet)
@@ -156,7 +159,8 @@ object EpisodeTracker {
      */
     fun getTotalWatchedCount(show: Show): Int {
         if (show.status == "Movie") {
-            return if (show.episode >= 1) 1 else 0
+            return if (getWatchedEpisodesForSeason(show.watchedEpisodes, 1).contains(1) ||
+                (show.episode >= 1 && show.watchedEpisodes.isBlank())) 1 else 0
         }
         val map = getAllSeasonsWatchedMap(show.watchedEpisodes, show.season)
         return map.values.sumOf { it.size }
@@ -167,7 +171,8 @@ object EpisodeTracker {
      */
     fun isEntireShowCompleted(show: Show): Boolean {
         if (show.status == "Movie") {
-            return show.episode >= 1 || show.watchedEpisodes.isNotBlank()
+            return getWatchedEpisodesForSeason(show.watchedEpisodes, 1).contains(1) ||
+                (show.episode >= 1 && show.watchedEpisodes.isBlank())
         }
         if (show.seasonData.isEmpty()) {
             return false
@@ -175,7 +180,7 @@ object EpisodeTracker {
         val map = getAllSeasonsWatchedMap(show.watchedEpisodes, show.season)
         return show.seasonData.all { seasonInfo ->
             val watched = map[seasonInfo.number] ?: emptySet()
-            seasonInfo.episodes > 0 && watched.size >= seasonInfo.episodes
+            seasonInfo.episodes > 0 && (1..seasonInfo.episodes).all { it in watched }
         }
     }
 }
