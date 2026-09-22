@@ -248,12 +248,21 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     fun loadDiscoveryFeed() {
         viewModelScope.launch {
             if (_tmdbApiKey.value.isBlank()) {
-                _trendingTvShows.value = getMockTvShows()
-                _trendingMovies.value = getMockMovies()
-                _upcomingMovies.value = getMockUpcomingMovies()
-                _topRatedMovies.value = getMockTopRatedMovies()
-                _topRatedTvShows.value = getMockTopRatedTvShows()
-                _popularTvShows.value = getMockPopularTvShows()
+                if (com.example.BuildConfig.DEBUG) {
+                    _trendingTvShows.value = getMockTvShows()
+                    _trendingMovies.value = getMockMovies()
+                    _upcomingMovies.value = getMockUpcomingMovies()
+                    _topRatedMovies.value = getMockTopRatedMovies()
+                    _topRatedTvShows.value = getMockTopRatedTvShows()
+                    _popularTvShows.value = getMockPopularTvShows()
+                } else {
+                    _trendingTvShows.value = emptyList()
+                    _trendingMovies.value = emptyList()
+                    _upcomingMovies.value = emptyList()
+                    _topRatedMovies.value = emptyList()
+                    _topRatedTvShows.value = emptyList()
+                    _popularTvShows.value = emptyList()
+                }
                 return@launch
             }
             _isDiscovering.value = true
@@ -265,8 +274,8 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                 val topRatedTvList = repository.getTopRatedTv()
                 val popularTvList = repository.getPopularTv()
 
-                _trendingTvShows.value = tvList.ifEmpty { getMockTvShows() }
-                _trendingMovies.value = movieList.ifEmpty { getMockMovies() }
+                _trendingTvShows.value = if (tvList.isNotEmpty()) tvList else if (com.example.BuildConfig.DEBUG) getMockTvShows() else emptyList()
+                _trendingMovies.value = if (movieList.isNotEmpty()) movieList else if (com.example.BuildConfig.DEBUG) getMockMovies() else emptyList()
                 
                 // Filter out any upcoming movie that already exists in trending to ensure zero duplicates
                 val trendingIds = movieList.mapNotNull { it.tmdbId }.toSet()
@@ -274,13 +283,19 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                 val filteredUpcoming = upcomingList.filter { 
                     it.tmdbId !in trendingIds && it.title.lowercase().trim() !in trendingTitles
                 }
-                _upcomingMovies.value = filteredUpcoming.ifEmpty { getMockUpcomingMovies() }
+                _upcomingMovies.value = if (filteredUpcoming.isNotEmpty()) filteredUpcoming else if (com.example.BuildConfig.DEBUG) getMockUpcomingMovies() else emptyList()
                 
-                _topRatedMovies.value = topRatedMovieList.ifEmpty { getMockTopRatedMovies() }
-                _topRatedTvShows.value = topRatedTvList.ifEmpty { getMockTopRatedTvShows() }
-                _popularTvShows.value = popularTvList.ifEmpty { getMockPopularTvShows() }
+                _topRatedMovies.value = if (topRatedMovieList.isNotEmpty()) topRatedMovieList else if (com.example.BuildConfig.DEBUG) getMockTopRatedMovies() else emptyList()
+                _topRatedTvShows.value = if (topRatedTvList.isNotEmpty()) topRatedTvList else if (com.example.BuildConfig.DEBUG) getMockTopRatedTvShows() else emptyList()
+                _popularTvShows.value = if (popularTvList.isNotEmpty()) popularTvList else if (com.example.BuildConfig.DEBUG) getMockPopularTvShows() else emptyList()
             } catch (e: Exception) {
                 e.printStackTrace()
+                _trendingTvShows.value = emptyList()
+                _trendingMovies.value = emptyList()
+                _upcomingMovies.value = emptyList()
+                _topRatedMovies.value = emptyList()
+                _topRatedTvShows.value = emptyList()
+                _popularTvShows.value = emptyList()
             } finally {
                 _isDiscovering.value = false
             }
