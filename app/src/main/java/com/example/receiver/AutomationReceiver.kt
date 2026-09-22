@@ -17,6 +17,7 @@ class AutomationReceiver : BroadcastReceiver() {
             val previousEpisodeCount = intent.getIntExtra("PREVIOUS_EPISODE_COUNT", -1)
             val previousWatchedEpisodes = intent.getStringExtra("PREVIOUS_WATCHED_EPISODES")
             val previousSeason = intent.getIntExtra("PREVIOUS_SEASON", -1)
+            val previousAutoCheckLastRun = intent.getLongExtra("PREVIOUS_AUTO_CHECK_LAST_RUN", -1L)
 
             // Cancel notification (ID 1002)
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -33,6 +34,7 @@ class AutomationReceiver : BroadcastReceiver() {
                                 season = if (previousSeason != -1) previousSeason else show.season,
                                 episode = previousEpisodeCount,
                                 watchedEpisodes = previousWatchedEpisodes,
+                                autoCheckLastRun = if (previousAutoCheckLastRun >= 0L) previousAutoCheckLastRun else show.autoCheckLastRun,
                                 updated = System.currentTimeMillis()
                             )
                             repository.saveShow(restoredShow)
