@@ -344,7 +344,19 @@ class BingeRepository(context: Context) {
     suspend fun getDiscoveryDetail(tmdbId: Int, isMovie: Boolean): DiscoveryDetail {
         val apiKey = getSetting("tmdb_key")
         if (apiKey.isNullOrBlank()) {
-            return getMockDiscoveryDetail(tmdbId, isMovie)
+            if (com.example.BuildConfig.DEBUG) {
+                return getMockDiscoveryDetail(tmdbId, isMovie)
+            }
+            return DiscoveryDetail(
+                title = "Details unavailable",
+                overview = "Add a TMDB API key in Settings to load live details.",
+                rating = 0.0,
+                dateOrSeason = "N/A",
+                genres = emptyList(),
+                runtimeOrEpisodes = "N/A",
+                poster = null,
+                isMovie = isMovie
+            )
         }
         return try {
             if (isMovie) {
