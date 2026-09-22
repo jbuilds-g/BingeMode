@@ -67,12 +67,12 @@ class BingeRepository(context: Context) {
      * This makes backups portable across installs/devices and prevents stale IDs from
      * colliding with records that already exist in the destination database.
      */
-    suspend fun getAllSettings(): List<Setting> = showDao.getAllSettings()
+    suspend fun getAllSettings(): List<Setting> = settingDao.getAllSettings()
 
     suspend fun restoreBackup(shows: List<Show>, settings: List<Setting>): Int {
         db.withTransaction {
             showDao.deleteAllShows()
-            showDao.deleteAllSettings()
+            settingDao.deleteAllSettings()
 
             shows.forEach { show ->
                 showDao.insertShow(
@@ -81,7 +81,7 @@ class BingeRepository(context: Context) {
             }
 
             settings.forEach { setting ->
-                showDao.insertSetting(setting)
+                settingDao.insertSetting(setting)
             }
         }
         return shows.size
