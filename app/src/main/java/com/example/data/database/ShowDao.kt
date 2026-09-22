@@ -43,8 +43,8 @@ interface SettingDao {
     @Query("SELECT * FROM settings")
     suspend fun getAllSettings(): List<Setting>
 
-    @Query("DELETE FROM settings")
-    suspend fun deleteAllSettings()
+    @Query("DELETE FROM settings WHERE `key` = :key")
+    suspend fun deleteSetting(key: String)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSetting(setting: Setting)
