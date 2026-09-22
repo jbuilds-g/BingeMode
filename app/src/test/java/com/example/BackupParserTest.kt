@@ -59,7 +59,7 @@ class BackupParserTest {
             )
         )
 
-        assertTrue(json.contains(""version":2"))
+        assertTrue(json.contains("\"version\":2"))
         assertFalse(json.contains("secret"))
         assertTrue(json.contains("display_mode"))
     }
