@@ -1089,70 +1089,20 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     }
 
     // Import Backup JSON string.
-    // Legacy backups are raw Show arrays. Versioned backups use an envelope.
-    private companion object {
-        const val CURRENT_BACKUP_VERSION = 2
-        const val TMDB_KEY_SETTING = "tmdb_key"
-    }
-
+    // Legacy raw-array backups remain supported for backward compatibility.
     fun importBackup(jsonString: String, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
-                val normalizedJson = jsonString.trim()
-                if (normalizedJson.isEmpty()) {
-                    _toastMessage.value = "Backup file is empty."
-                    onComplete(false)
-                    return@launch
-                }
+                val payload = com.example.data.backup.BackupParser.parse(jsonString)
+                val restoredCount = repository.restoreBackup(payload.shows, payload.settings)
 
-                val showListType = com.squareup.moshi.Types.newParameterizedType(
-                    List::class.java,
-                    Show::class.java
-                )
-                val showListAdapter: com.squareup.moshi.JsonAdapter<List<Show>> =
-                    moshi.adapter(showListType)
-                val envelopeAdapter = moshi.adapter(BackupEnvelope::class.java)
-
-                val parsed = try {
-                    val jsonObject = org.json.JSONObject(normalizedJson)
-                    if (!jsonObject.has("version")) {
-                        throw IllegalArgumentException("Missing backup version")
-                    }
-
-                    val version = jsonObject.getInt("version")
-                    if (version !in 1..CURRENT_BACKUP_VERSION) {
-                        throw IllegalArgumentException("Unsupported backup version: $version")
-                    }
-
-                    val envelope = envelopeAdapter.fromJson(normalizedJson)
-                        ?: throw IllegalArgumentException("Invalid backup envelope")
-                    val shows = envelope.shows
-                        ?: throw IllegalArgumentException("Backup is missing its shows list")
-
-                    shows to (envelope.settings ?: emptyList())
-                } catch (_: org.json.JSONException) {
-                    // Older BingeMode backups were exported as a raw Show array.
-                    showListAdapter.fromJson(normalizedJson)?.let { it to emptyList() }
-                        ?: throw IllegalArgumentException("Invalid backup format")
-                }
-
-                val (shows, settings) = parsed
-
-                // Validate the complete payload before any database mutation.
-                if (shows.any { it.title.isBlank() }) {
-                    throw IllegalArgumentException("Backup contains a show with no title")
-                }
-
-                // API credentials are local device state and are intentionally never restored.
-                val safeSettings = settings.filter { it.key != TMDB_KEY_SETTING }
-
-                val restoredCount = repository.restoreBackup(shows, safeSettings)
                 _activeChecklistShow.value = null
                 loadApiKey()
                 loadThemeMode()
                 loadAutoMarkBanner()
                 _toastMessage.value =
-                    "Backup restored: " + restoredCount + " show(s) and " + safeSettings.size + " setting(s)."
+                    "Backup restored: " + restoredCount + " show(s) and " +
+                        payload.settings.size + " setting(s)."
                 onComplete(true)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -1163,18 +1113,21 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     }
 
     // Export a versioned backup containing portable local app state.
-    // The TMDB API key is intentionally excluded because it is device-local credential data.
+    // The TMDB API key is intentionally excluded by BackupParser.
     fun exportBackup(onComplete: (String) -> Unit) {
         viewModelScope.launch {
             try {
                 val showsList = repository.getAllShowsList()
                 val settingsList = repository.getAllSettings()
-                    .filter { it.key != TMDB_KEY_SETTING }
+                    .filter { it.key != com.example.data.backup.BackupParser.TMDB_KEY_SETTING }
 
-                onComplete(
-                    moshi.adapter(BackupEnvelope::class.java)
-                        .toJson(BackupEnvelope(CURRENT_BACKUP_VERSION, showsList, settingsList))
+                val envelope = mapOf(
+                    "version" to com.example.data.backup.BackupParser.CURRENT_VERSION,
+                    "shows" to showsList,
+                    "settings" to settingsList
                 )
+                val adapter = moshi.adapter<Map<String, Any?>>()
+                onComplete(adapter.toJson(envelope))
             } catch (e: Exception) {
                 e.printStackTrace()
                 _toastMessage.value = "Backup export failed: " + (e.message ?: "unknown error")
@@ -1183,11 +1136,6 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
         }
     }
 
-    private data class BackupEnvelope(
-        val version: Int = CURRENT_BACKUP_VERSION,
-        val shows: List<Show>? = emptyList(),
-        val settings: List<com.example.data.model.Setting>? = emptyList()
-    )
     private var autoCheckReceiver: android.content.BroadcastReceiver? = null
 
     private fun startAutoCheckScanner() {
