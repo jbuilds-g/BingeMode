@@ -304,8 +304,12 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
 
     fun fetchDiscoveryDetail(tmdbId: Int, isMovie: Boolean, onComplete: (com.example.data.repository.DiscoveryDetail) -> Unit) {
         viewModelScope.launch {
-            val detail = repository.getDiscoveryDetail(tmdbId, isMovie)
-            onComplete(detail)
+            try {
+                onComplete(repository.getDiscoveryDetail(tmdbId, isMovie))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _toastMessage.value = "TMDB details request failed."
+            }
         }
     }
 
@@ -694,28 +698,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
 
     suspend fun fetchSectionPage(sectionId: String, page: Int): List<Show> {
         val apiKey = _tmdbApiKey.value
-        if (apiKey.isBlank()) {
-            val baseList = when (sectionId) {
-                "coming_soon" -> getMockUpcomingMovies()
-                "trending_movies" -> getMockMovies()
-                "top_rated_movies" -> getMockTopRatedMovies()
-                "trending_tv" -> getMockTvShows()
-                "top_rated_tv" -> getMockTopRatedTvShows()
-                "popular_tv" -> getMockPopularTvShows()
-                else -> emptyList()
-            }
-            if (baseList.isEmpty()) return emptyList()
-            return baseList.mapIndexed { idx, show ->
-                val newId = show.id - (page * 100) - idx
-                val suffix = if (page > 1) " $page" else ""
-                show.copy(
-                    id = newId,
-                    title = show.title + suffix,
-                    tmdbId = if (show.tmdbId != null) show.tmdbId!! + (page * 1000) + idx else null,
-                    rating = (show.rating + (idx % 3) * 0.1f).coerceIn(1.0, 10.0)
-                )
-            }
-        }
+        if (apiKey.isBlank()) return emptyList()
         return try {
             when (sectionId) {
                 "coming_soon" -> {
@@ -735,6 +718,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            _toastMessage.value = "TMDB request failed. Check your API key or network connection."
             emptyList()
         }
     }
@@ -747,21 +731,33 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
         }
         viewModelScope.launch {
             _isSearching.value = true
-            val results = repository.searchShows(query)
-            _searchResults.value = results
-            _isSearching.value = false
+            try {
+                _searchResults.value = repository.searchShows(query)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _searchResults.value = emptyList()
+                _toastMessage.value = "TMDB search failed. Check your API key or network connection."
+            } finally {
+                _isSearching.value = false
+            }
         }
     }
 
     // Load a TMDB show's full details (to get seasons, status, average rating)
     fun fetchShowDetailsForSelection(tmdbId: Int, isMovie: Boolean, onComplete: (Show?) -> Unit) {
         viewModelScope.launch {
-            val showDetails = if (isMovie) {
-                repository.getMovieDetails(tmdbId)
-            } else {
-                repository.getTvShowDetails(tmdbId)
+            try {
+                val showDetails = if (isMovie) {
+                    repository.getMovieDetails(tmdbId)
+                } else {
+                    repository.getTvShowDetails(tmdbId)
+                }
+                onComplete(showDetails)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _toastMessage.value = "TMDB details request failed."
+                onComplete(null)
             }
-            onComplete(showDetails)
         }
     }
 
