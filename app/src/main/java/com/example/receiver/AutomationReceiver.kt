@@ -21,7 +21,7 @@ class AutomationReceiver : BroadcastReceiver() {
 
             // Cancel notification (ID 1002)
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(1002)
+            notificationManager.cancel(showId + 30000)
 
             if (showId != -1 && previousEpisodeCount != -1 && previousWatchedEpisodes != null) {
                 val pendingResult = goAsync()
