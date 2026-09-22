@@ -175,6 +175,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     }
 
     fun setupSimulationMockShow() {
+        if (!com.example.BuildConfig.DEBUG) return
         viewModelScope.launch {
             val existingMock = trackedShows.value.find { it.title.contains("Arcane", ignoreCase = true) }
             if (existingMock == null) {
@@ -193,6 +194,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     }
 
     fun simulateAutoCheck(context: android.content.Context) {
+        if (!com.example.BuildConfig.DEBUG) return
         viewModelScope.launch {
             val existingMock = trackedShows.value.find { it.title.contains("Arcane", ignoreCase = true) }
             val mockShow = if (existingMock == null) {
