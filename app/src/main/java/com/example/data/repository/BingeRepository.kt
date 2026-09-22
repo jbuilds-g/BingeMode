@@ -16,6 +16,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
+class TmdbApiException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
+
 class BingeRepository(context: Context) {
     val context: Context = context.applicationContext
     private val db = BingeModeDatabase.getDatabase(this.context)
@@ -126,8 +128,7 @@ class BingeRepository(context: Context) {
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
+            throw TmdbApiException("TMDB request failed", e)
         }
     }
 
@@ -153,8 +154,7 @@ class BingeRepository(context: Context) {
                 updated = System.currentTimeMillis()
             )
         } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            throw TmdbApiException("TMDB request failed", e)
         }
     }
 
@@ -172,8 +172,7 @@ class BingeRepository(context: Context) {
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            throw TmdbApiException("TMDB request failed", e)
         }
     }
 
@@ -196,8 +195,7 @@ class BingeRepository(context: Context) {
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
+            throw TmdbApiException("TMDB request failed", e)
         }
     }
 
@@ -220,8 +218,7 @@ class BingeRepository(context: Context) {
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
+            throw TmdbApiException("TMDB request failed", e)
         }
     }
 
@@ -242,8 +239,7 @@ class BingeRepository(context: Context) {
                 updated = System.currentTimeMillis()
             )
         } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            throw TmdbApiException("TMDB request failed", e)
         }
     }
 
@@ -271,8 +267,7 @@ class BingeRepository(context: Context) {
                 show.releaseDate == null || show.releaseDate.isBlank() || show.releaseDate >= todayStr
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
+            throw TmdbApiException("TMDB request failed", e)
         }
     }
 
@@ -295,8 +290,7 @@ class BingeRepository(context: Context) {
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
+            throw TmdbApiException("TMDB request failed", e)
         }
     }
 
@@ -319,8 +313,7 @@ class BingeRepository(context: Context) {
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
+            throw TmdbApiException("TMDB request failed", e)
         }
     }
 
@@ -343,8 +336,7 @@ class BingeRepository(context: Context) {
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
+            throw TmdbApiException("TMDB request failed", e)
         }
     }
 
@@ -386,8 +378,7 @@ class BingeRepository(context: Context) {
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            getMockDiscoveryDetail(tmdbId, isMovie)
+            throw TmdbApiException("TMDB detail request failed", e)
         }
     }
 
