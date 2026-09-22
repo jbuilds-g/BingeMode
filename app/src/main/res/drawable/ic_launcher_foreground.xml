@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <!-- White Play Icon center balanced inside the safe zone -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M180,140 L400,256 L180,372 Z" />
+</vector>

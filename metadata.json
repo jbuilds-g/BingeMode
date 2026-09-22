@@ -1,0 +1,6 @@
+{
+  "name": "BingeMode",
+  "description": "Smart, lightweight TV series tracking companion featuring dynamic, interactive TMDB discovery feeds for movies and shows.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
