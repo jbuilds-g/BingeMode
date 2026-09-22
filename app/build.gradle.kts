@@ -66,6 +66,11 @@ android {
   }
 
   testOptions { unitTests { isIncludeAndroidResources = true } }
+
+  dependenciesInfo {
+    includeInApk = false
+    includeInBundle = true
+  }
 }
 
 dependencies {
