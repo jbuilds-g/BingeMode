@@ -40,6 +40,12 @@ interface SettingDao {
     @Query("SELECT * FROM settings WHERE `key` = :key")
     fun getSettingValueFlow(key: String): Flow<Setting?>
 
+    @Query("SELECT * FROM settings")
+    suspend fun getAllSettings(): List<Setting>
+
+    @Query("DELETE FROM settings")
+    suspend fun deleteAllSettings()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSetting(setting: Setting)
 }
