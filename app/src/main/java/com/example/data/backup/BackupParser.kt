@@ -3,6 +3,7 @@ package com.example.data.backup
 import com.example.data.model.Setting
 import com.example.data.model.Show
 import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -14,15 +15,16 @@ data class BackupPayload(
     val settings: List<Setting>
 )
 
+@JsonClass(generateAdapter = true)
+internal data class BackupBackupEnvelope(
+    val version: Int,
+    val shows: List<Show>? = emptyList(),
+    val settings: List<Setting>? = emptyList()
+)
+
 object BackupParser {
     const val CURRENT_VERSION = 2
     const val TMDB_KEY_SETTING = "tmdb_key"
-
-    private data class Envelope(
-        val version: Int,
-        val shows: List<Show>? = emptyList(),
-        val settings: List<Setting>? = emptyList()
-    )
 
     private val moshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())
@@ -31,7 +33,7 @@ object BackupParser {
     private val showListAdapter: JsonAdapter<List<Show>> = moshi.adapter(
         Types.newParameterizedType(List::class.java, Show::class.java)
     )
-    private val envelopeAdapter: JsonAdapter<Envelope> = moshi.adapter(Envelope::class.java)
+    private val envelopeAdapter: JsonAdapter<BackupEnvelope> = moshi.adapter(BackupEnvelope::class.java)
 
     fun serialize(shows: List<Show>, settings: List<Setting>): String {
         val safeSettings = settings.filter { it.key != TMDB_KEY_SETTING }
