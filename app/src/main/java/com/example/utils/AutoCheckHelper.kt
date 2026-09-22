@@ -443,6 +443,7 @@ object AutoCheckHelper {
             notificationManager.createNotificationChannel(channel)
         }
 
+        val notificationId = (System.currentTimeMillis() and 0x7FFFFFFF).toInt()
         val undoIntent = Intent(context, AutomationReceiver::class.java).apply {
             action = "com.example.ACTION_UNDO_AUTOMATION"
             putExtra("SHOW_ID", currentShow.id)
@@ -453,7 +454,7 @@ object AutoCheckHelper {
 
         val undoPendingIntent = PendingIntent.getBroadcast(
             context,
-            currentShow.id + 20000,
+            notificationId,
             undoIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -474,7 +475,7 @@ object AutoCheckHelper {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
-        notificationManager.notify(currentShow.id + 30000, notification)
+        notificationManager.notify(notificationId, notification)
 
         // Broadcast to update UI and trigger in-app banner
         val updateIntent = Intent("com.example.ACTION_AUTO_CHECK_COMPLETED").apply {
