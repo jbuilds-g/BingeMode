@@ -72,16 +72,19 @@ class BingeRepository(context: Context) {
     suspend fun restoreBackup(shows: List<Show>, settings: List<Setting>): Int {
         db.withTransaction {
             showDao.deleteAllShows()
-            settingDao.deleteAllSettings()
+            // Only replace settings represented by the backup. This preserves
+            // local-only settings such as the user's TMDB API key.
+            settings
+                .filter { it.key != "tmdb_key" }
+                .forEach { setting ->
+                    settingDao.deleteSetting(setting.key)
+                    settingDao.insertSetting(setting)
+                }
 
             shows.forEach { show ->
                 showDao.insertShow(
                     show.copy(id = 0, updated = show.updated)
                 )
-            }
-
-            settings.forEach { setting ->
-                settingDao.insertSetting(setting)
             }
         }
         return shows.size
