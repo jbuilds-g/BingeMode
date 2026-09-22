@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.data.repository.BingeRepository
 import com.example.ui.BingeModeApp
 import com.example.ui.viewmodel.BingeViewModel
+import com.example.ui.viewmodel.BingeViewModelFactory
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: BingeViewModel
