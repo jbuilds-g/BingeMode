@@ -1121,13 +1121,9 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                 val settingsList = repository.getAllSettings()
                     .filter { it.key != com.example.data.backup.BackupParser.TMDB_KEY_SETTING }
 
-                val envelope = mapOf(
-                    "version" to com.example.data.backup.BackupParser.CURRENT_VERSION,
-                    "shows" to showsList,
-                    "settings" to settingsList
+                onComplete(
+                    com.example.data.backup.BackupParser.serialize(showsList, settingsList)
                 )
-                val adapter = moshi.adapter<Map<String, Any?>>()
-                onComplete(adapter.toJson(envelope))
             } catch (e: Exception) {
                 e.printStackTrace()
                 _toastMessage.value = "Backup export failed: " + (e.message ?: "unknown error")
