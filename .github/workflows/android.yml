@@ -59,11 +59,40 @@ jobs:
             test -f "$apk" || { echo "Missing expected APK: $apk"; exit 1; }
           done
 
-      - name: Upload release APKs
+      - name: Upload universal APK
         uses: actions/upload-artifact@v4
         with:
-          name: BingeMode-release-apks
-          path: app/build/outputs/apk/release/*.apk
+          name: BingeMode-universal
+          path: app/build/outputs/apk/release/app-universal-release.apk
+          if-no-files-found: error
+
+      - name: Upload arm64-v8a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BingeMode-arm64-v8a
+          path: app/build/outputs/apk/release/app-arm64-v8a-release.apk
+          if-no-files-found: error
+
+      - name: Upload armeabi-v7a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BingeMode-armeabi-v7a
+          path: app/build/outputs/apk/release/app-armeabi-v7a-release.apk
+          if-no-files-found: error
+
+      - name: Upload x86 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BingeMode-x86
+          path: app/build/outputs/apk/release/app-x86-release.apk
+          if-no-files-found: error
+
+      - name: Upload x86_64 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BingeMode-x86_64
+          path: app/build/outputs/apk/release/app-x86_64-release.apk
+          if-no-files-found: error
 
       - name: Remove release keystore
         if: always()
