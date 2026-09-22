@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.data.model.Show
 import com.example.data.model.Setting
 
-@Database(entities = [Show::class, Setting::class], version = 4, exportSchema = false)
+@Database(entities = [Show::class, Setting::class], version = 5, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class BingeModeDatabase : RoomDatabase() {
     abstract fun showDao(): ShowDao
@@ -46,6 +46,13 @@ abstract class BingeModeDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE shows ADD COLUMN mediaType TEXT NOT NULL DEFAULT 'tv'")
+                db.execSQL("UPDATE shows SET mediaType = CASE WHEN status = 'Movie' THEN 'movie' ELSE 'tv' END")
+            }
+        }
+
         fun getDatabase(context: Context): BingeModeDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -53,7 +60,7 @@ abstract class BingeModeDatabase : RoomDatabase() {
                     BingeModeDatabase::class.java,
                     "bingemode_db"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build()
                 INSTANCE = instance
                 instance
