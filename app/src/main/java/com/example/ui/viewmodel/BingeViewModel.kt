@@ -1074,8 +1074,8 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     }
 
     // Import Backup JSON string.
-    // Keep accepting the original raw JSON array format so older backups remain restorable.
-    // Also accept an object containing a "shows" array for forward compatibility.
+    // Legacy backups are raw Show arrays. New backups use a versioned envelope
+    // containing both shows and settings.
     fun importBackup(jsonString: String, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
@@ -1086,31 +1086,33 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                     return@launch
                 }
 
-                val showListType = com.squareup.moshi.Types.newParameterizedType(
-                    List::class.java,
-                    Show::class.java
-                )
-                val showListAdapter: com.squareup.moshi.JsonAdapter<List<Show>> =
-                    moshi.adapter(showListType)
+                val showListType = com.squareup.moshi.Types.newParameterizedType(List::class.java, Show::class.java)
+                val showListAdapter: com.squareup.moshi.JsonAdapter<List<Show>> = moshi.adapter(showListType)
+                val envelopeAdapter = moshi.adapter(BackupEnvelope::class.java)
 
-                val shows = try {
-                    // Legacy/current format: [ { ...show... }, ... ]
-                    showListAdapter.fromJson(normalizedJson)
+                val envelope = try {
+                    envelopeAdapter.fromJson(normalizedJson)
                 } catch (_: Exception) {
-                    // Forward-compatible format: { "version": 1, "shows": [ ... ] }
-                    val envelopeAdapter = moshi.adapter(BackupEnvelope::class.java)
-                    envelopeAdapter.fromJson(normalizedJson)?.shows
+                    null
                 }
 
-                if (shows == null) {
-                    _toastMessage.value = "Invalid backup format."
-                    onComplete(false)
-                    return@launch
+                val shows: List<Show>
+                val settings: List<com.example.data.model.Setting>
+                if (envelope != null && envelope.shows != null) {
+                    shows = envelope.shows
+                    settings = envelope.settings ?: emptyList()
+                } else {
+                    // Older format: [ { ...show... }, ... ]
+                    shows = showListAdapter.fromJson(normalizedJson) ?: throw IllegalArgumentException("Invalid backup format")
+                    settings = emptyList()
                 }
 
-                val restoredCount = repository.restoreShows(shows)
+                val restoredCount = repository.restoreBackup(shows, settings)
                 _activeChecklistShow.value = null
-                _toastMessage.value = "Backup restored: " + restoredCount + " show(s)."
+                loadApiKey()
+                loadThemeMode()
+                loadAutoMarkBanner()
+                _toastMessage.value = "Backup restored: " + restoredCount + " show(s) and " + settings.size + " setting(s)."
                 onComplete(true)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -1120,18 +1122,13 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
         }
     }
 
-    // Export Backup JSON string.
-    // Keep the established array format so backups remain readable by older versions.
+    // Export a versioned backup containing the full local app state.
     fun exportBackup(onComplete: (String) -> Unit) {
         viewModelScope.launch {
             try {
                 val showsList = repository.getAllShowsList()
-                val type = com.squareup.moshi.Types.newParameterizedType(
-                    List::class.java,
-                    Show::class.java
-                )
-                val adapter: com.squareup.moshi.JsonAdapter<List<Show>> = moshi.adapter(type)
-                onComplete(adapter.toJson(showsList))
+                val settingsList = repository.getAllSettings()
+                onComplete(moshi.adapter(BackupEnvelope::class.java).toJson(BackupEnvelope(2, showsList, settingsList)))
             } catch (e: Exception) {
                 e.printStackTrace()
                 _toastMessage.value = "Backup export failed: " + (e.message ?: "unknown error")
@@ -1141,8 +1138,9 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     }
 
     private data class BackupEnvelope(
-        val version: Int = 1,
-        val shows: List<Show> = emptyList()
+        val version: Int = 2,
+        val shows: List<Show>? = emptyList(),
+        val settings: List<com.example.data.model.Setting>? = emptyList()
     )
     private var autoCheckReceiver: android.content.BroadcastReceiver? = null
 
