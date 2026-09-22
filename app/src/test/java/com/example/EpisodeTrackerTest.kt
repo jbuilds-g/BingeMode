@@ -73,8 +73,8 @@ class EpisodeTrackerTest {
         val raw = EpisodeTracker.serializeMap(mapOf(1 to setOf(1, 3, 5)))
         val (updated, watched) = EpisodeTracker.setSequentialProgress(raw, 1, 3)
 
-        assertEquals(setOf(1, 3, 5), watched)
-        assertEquals(setOf(1, 3, 5), EpisodeTracker.getWatchedEpisodesForSeason(updated, 1))
+        assertEquals(setOf(1, 2, 3, 5), watched)
+        assertEquals(setOf(1, 2, 3, 5), EpisodeTracker.getWatchedEpisodesForSeason(updated, 1))
     }
 
     @Test
