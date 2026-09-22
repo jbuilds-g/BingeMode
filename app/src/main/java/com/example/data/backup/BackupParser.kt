@@ -3,6 +3,7 @@ package com.example.data.backup
 import com.example.data.model.Setting
 import com.example.data.model.Show
 import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -18,6 +19,7 @@ object BackupParser {
     const val CURRENT_VERSION = 2
     const val TMDB_KEY_SETTING = "tmdb_key"
 
+    @JsonClass(generateAdapter = true)
     private data class Envelope(
         val version: Int,
         val shows: List<Show>? = emptyList(),
