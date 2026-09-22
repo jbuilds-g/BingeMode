@@ -1073,46 +1073,77 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
         }
     }
 
-    // Import Backup JSON string
+    // Import Backup JSON string.
+    // Keep accepting the original raw JSON array format so older backups remain restorable.
+    // Also accept an object containing a "shows" array for forward compatibility.
     fun importBackup(jsonString: String, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
-                // Let's use Moshi to parse List<Show>
-                val type = com.squareup.moshi.Types.newParameterizedType(List::class.java, Show::class.java)
-                val adapter: com.squareup.moshi.JsonAdapter<List<Show>> = moshi.adapter(type)
-                val shows = adapter.fromJson(jsonString)
-                if (shows != null) {
-                    for (show in shows) {
-                        repository.saveShow(show)
-                    }
-                    onComplete(true)
-                    _toastMessage.value = "Backup successfully restored!"
-                } else {
+                val normalizedJson = jsonString.trim()
+                if (normalizedJson.isEmpty()) {
+                    _toastMessage.value = "Backup file is empty."
                     onComplete(false)
+                    return@launch
                 }
+
+                val showListType = com.squareup.moshi.Types.newParameterizedType(
+                    List::class.java,
+                    Show::class.java
+                )
+                val showListAdapter: com.squareup.moshi.JsonAdapter<List<Show>> =
+                    moshi.adapter(showListType)
+
+                val shows = try {
+                    // Legacy/current format: [ { ...show... }, ... ]
+                    showListAdapter.fromJson(normalizedJson)
+                } catch (_: Exception) {
+                    // Forward-compatible format: { "version": 1, "shows": [ ... ] }
+                    val envelopeAdapter = moshi.adapter(BackupEnvelope::class.java)
+                    envelopeAdapter.fromJson(normalizedJson)?.shows
+                }
+
+                if (shows == null) {
+                    _toastMessage.value = "Invalid backup format."
+                    onComplete(false)
+                    return@launch
+                }
+
+                val restoredCount = repository.restoreShows(shows)
+                _activeChecklistShow.value = null
+                _toastMessage.value = "Backup restored: " + restoredCount + " show(s)."
+                onComplete(true)
             } catch (e: Exception) {
                 e.printStackTrace()
+                _toastMessage.value = "Backup restore failed: " + (e.message ?: "unknown error")
                 onComplete(false)
             }
         }
     }
 
-    // Export Backup JSON string
+    // Export Backup JSON string.
+    // Keep the established array format so backups remain readable by older versions.
     fun exportBackup(onComplete: (String) -> Unit) {
         viewModelScope.launch {
             try {
                 val showsList = repository.getAllShowsList()
-                val type = com.squareup.moshi.Types.newParameterizedType(List::class.java, Show::class.java)
+                val type = com.squareup.moshi.Types.newParameterizedType(
+                    List::class.java,
+                    Show::class.java
+                )
                 val adapter: com.squareup.moshi.JsonAdapter<List<Show>> = moshi.adapter(type)
-                val json = adapter.toJson(showsList)
-                onComplete(json)
+                onComplete(adapter.toJson(showsList))
             } catch (e: Exception) {
                 e.printStackTrace()
+                _toastMessage.value = "Backup export failed: " + (e.message ?: "unknown error")
                 onComplete("[]")
             }
         }
     }
 
+    private data class BackupEnvelope(
+        val version: Int = 1,
+        val shows: List<Show> = emptyList()
+    )
     private var autoCheckReceiver: android.content.BroadcastReceiver? = null
 
     private fun startAutoCheckScanner() {
