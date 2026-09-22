@@ -457,7 +457,8 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                 title = "Dune: Part Two",
                 tmdbId = 693134,
                 poster = "https://image.tmdb.org/t/p/w500/cz062RhR639g8Y67UV56La6Ucrg.jpg",
-                status = "Movie",
+                mediaType = "movie",
+                    status = "Movie",
                 rating = 8.3,
                 season = 1,
                 episode = 0
@@ -1336,7 +1337,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                         val showsList = repository.getAllShowsList()
                         for (show in showsList) {
                             val tmdbId = show.tmdbId ?: continue
-                            val isMovie = show.status == "Released" || show.status == "Movie" || show.seasonData.isEmpty()
+                            val isMovie = show.mediaType == "movie"
                             if (isMovie) {
                                 try {
                                     val freshMovie = repository.getMovieDetails(tmdbId)
