@@ -54,7 +54,6 @@ abstract class BingeModeDatabase : RoomDatabase() {
                     "bingemode_db"
                 )
                 .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
-                .fallbackToDestructiveMigration() // Still keep as a last-resort fallback
                 .build()
                 INSTANCE = instance
                 instance
