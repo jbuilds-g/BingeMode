@@ -16,7 +16,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 class BingeRepository(context: Context) {
-    private val db = BingeModeDatabase.getDatabase(context)
+    val context: Context = context.applicationContext
+    private val db = BingeModeDatabase.getDatabase(this.context)
     private val showDao = db.showDao()
     private val settingDao = db.settingDao()
 
