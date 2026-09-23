@@ -16,7 +16,7 @@ data class BackupPayload(
 )
 
 @JsonClass(generateAdapter = true)
-internal data class BackupBackupEnvelope(
+internal data class BackupEnvelope(
     val version: Int,
     val shows: List<Show>? = emptyList(),
     val settings: List<Setting>? = emptyList()
@@ -38,7 +38,7 @@ object BackupParser {
     fun serialize(shows: List<Show>, settings: List<Setting>): String {
         val safeSettings = settings.filter { it.key != TMDB_KEY_SETTING }
         return envelopeAdapter.toJson(
-            Envelope(
+            BackupEnvelope(
                 version = CURRENT_VERSION,
                 shows = shows,
                 settings = safeSettings
