@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -36,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
@@ -45,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.viewmodel.BingeViewModel
+import com.example.data.github.GitHubProfileRepository
 import com.example.BuildConfig
 import com.example.R
 
@@ -104,12 +107,17 @@ fun SettingsScreen(
     var exportJsonText by remember { mutableStateOf("") }
     var showExportDialog by remember { mutableStateOf(false) }
     var showLicenseDialog by remember { mutableStateOf(false) }
+    var githubProfile by remember { mutableStateOf<com.example.data.github.GitHubProfile?>(null) }
     
     var isIntegrationsExpanded by remember { mutableStateOf(false) }
     var isBackupExpanded by remember { mutableStateOf(false) }
     
     LaunchedEffect(apiKey) {
         apiKeyInput = apiKey
+    }
+
+    LaunchedEffect(Unit) {
+        githubProfile = GitHubProfileRepository.loadProfile()
     }
 
     Scaffold(
@@ -508,15 +516,60 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.height(20.dp))
                         Text("Developer", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Surface(modifier = Modifier.fillMaxWidth().clickable { context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/jbuilds-g"))) }, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerHighest) {
-                            Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(52.dp)) {
-                                    Icon(painter = painterResource(id = R.drawable.ic_launcher_foreground), contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.padding(10.dp))
+                        val avatar = githubProfile?.avatar
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                    onClick = {
+                                        context.startActivity(
+                                            Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/jbuilds-g"))
+                                        )
+                                    }
+                                ),
+                            shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (avatar != null) {
+                                    Image(
+                                        bitmap = avatar.asImageBitmap(),
+                                        contentDescription = "JBuilds GitHub profile picture",
+                                        modifier = Modifier
+                                            .size(52.dp)
+                                            .clip(CircleShape)
+                                    )
+                                } else {
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.secondaryContainer,
+                                        modifier = Modifier.size(52.dp)
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_github),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                            modifier = Modifier.padding(12.dp)
+                                        )
+                                    }
                                 }
                                 Spacer(modifier = Modifier.weight(1f))
                                 Column(horizontalAlignment = Alignment.End) {
-                                    Text("JBuilds", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                                    Text("@jbuilds-g", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(
+                                        githubProfile?.name ?: "JBuilds",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        "@${githubProfile?.login ?: "jbuilds-g"}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                             }
                         }
@@ -528,7 +581,7 @@ fun SettingsScreen(
                                 Text("MIT License", maxLines = 1)
                             }
                             OutlinedButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/jbuilds-g/BingeMode"))) }, modifier = Modifier.weight(1f), shape = MaterialTheme.shapes.medium) {
-                                Icon(painter = painterResource(id = R.drawable.ic_launcher_foreground), contentDescription = null, modifier = Modifier.size(18.dp))
+                                Icon(painter = painterResource(id = R.drawable.ic_github), contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("View Source", maxLines = 1)
                             }
