@@ -4,12 +4,12 @@
     android:height="24dp"
     android:viewportWidth="512"
     android:viewportHeight="512">
-    <!-- Red rounded background -->
+    <!-- Soft app-blue rounded background, matching the About card palette -->
     <path
-        android:fillColor="#E50914"
+        android:fillColor="#8DB8C8"
         android:pathData="M100,0 H412 A100,100 0 0 1 512,100 V412 A100,100 0 0 1 412,512 H100 A100,100 0 0 1 0,412 V100 A100,100 0 0 1 100,0 Z" />
-    <!-- White play triangle -->
+    <!-- Dark play symbol -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#080B0C"
         android:pathData="M180,140 L400,256 L180,372 Z" />
 </vector>
