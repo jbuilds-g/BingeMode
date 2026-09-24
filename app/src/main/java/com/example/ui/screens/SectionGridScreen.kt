@@ -1,6 +1,6 @@
-package com.example.ui.screens
+package com.jbuilds.bingemode.ui.screens
 
-import com.example.ui.theme.elementBorder
+import com.jbuilds.bingemode.ui.theme.elementBorder
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,8 +34,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.data.model.Show
-import com.example.ui.viewmodel.BingeViewModel
+import com.jbuilds.bingemode.data.model.Show
+import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -198,7 +198,7 @@ fun SectionGridScreen(
     // Bottom Sheet Detail Selection
     if (selectedItem != null) {
         val item = selectedItem!!
-        var detailState by remember { mutableStateOf<com.example.data.repository.DiscoveryDetail?>(null) }
+        var detailState by remember { mutableStateOf<com.jbuilds.bingemode.data.repository.DiscoveryDetail?>(null) }
         var isDetailLoading by remember { mutableStateOf(false) }
 
         LaunchedEffect(selectedItem) {
