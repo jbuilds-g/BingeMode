@@ -1,4 +1,4 @@
-package com.example.data.api
+package com.jbuilds.bingemode.data.api
 
 import retrofit2.http.GET
 import retrofit2.http.Path
