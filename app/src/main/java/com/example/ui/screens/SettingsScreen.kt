@@ -502,7 +502,7 @@ fun SettingsScreen(
                     Column(modifier = Modifier.padding(20.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(104.dp)) {
-                                Image(painter = painterResource(id = R.drawable.ic_app_logo), contentDescription = "BingeMode", modifier = Modifier.fillMaxSize().padding(12.dp))
+                                Icon(painter = painterResource(id = R.drawable.ic_app_logo), contentDescription = "BingeMode", tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.fillMaxSize().padding(12.dp))
                             }
                             Spacer(modifier = Modifier.width(16.dp))
                             Column(modifier = Modifier.weight(1f)) {
