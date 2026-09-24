@@ -1,4 +1,4 @@
-package com.example.data.database
+package com.jbuilds.bingemode.data.database
 
 import android.content.Context
 import androidx.room.Database
@@ -7,8 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.data.model.Show
-import com.example.data.model.Setting
+import com.jbuilds.bingemode.data.model.Show
+import com.jbuilds.bingemode.data.model.Setting
 
 @Database(entities = [Show::class, Setting::class], version = 5, exportSchema = false)
 @TypeConverters(Converters::class)
