@@ -1,14 +1,14 @@
-package com.example.ui.viewmodel
+package com.jbuilds.bingemode.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.data.model.EpisodeInfo
-import com.example.data.model.SeasonInfo
-import com.example.data.model.Show
-import com.example.data.repository.BingeRepository
-import com.example.utils.AutoCheckHelper
-import com.example.utils.EpisodeTracker
+import com.jbuilds.bingemode.data.model.EpisodeInfo
+import com.jbuilds.bingemode.data.model.SeasonInfo
+import com.jbuilds.bingemode.data.model.Show
+import com.jbuilds.bingemode.data.repository.BingeRepository
+import com.jbuilds.bingemode.utils.AutoCheckHelper
+import com.jbuilds.bingemode.utils.EpisodeTracker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -175,7 +175,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     }
 
     fun setupSimulationMockShow() {
-        if (!com.example.BuildConfig.DEBUG) return
+        if (!com.jbuilds.bingemode.BuildConfig.DEBUG) return
         viewModelScope.launch {
             val existingMock = trackedShows.value.find { it.title.contains("Arcane", ignoreCase = true) }
             if (existingMock == null) {
@@ -194,7 +194,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     }
 
     fun simulateAutoCheck(context: android.content.Context) {
-        if (!com.example.BuildConfig.DEBUG) return
+        if (!com.jbuilds.bingemode.BuildConfig.DEBUG) return
         viewModelScope.launch {
             val existingMock = trackedShows.value.find { it.title.contains("Arcane", ignoreCase = true) }
             val mockShow = if (existingMock == null) {
@@ -213,7 +213,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                 existingMock
             }
             
-            com.example.utils.AutoCheckHelper.processAutoCheck(
+            com.jbuilds.bingemode.utils.AutoCheckHelper.processAutoCheck(
                 context, 
                 repository, 
                 mockShow.id, 
@@ -250,7 +250,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     fun loadDiscoveryFeed() {
         viewModelScope.launch {
             if (_tmdbApiKey.value.isBlank()) {
-                if (com.example.BuildConfig.DEBUG) {
+                if (com.jbuilds.bingemode.BuildConfig.DEBUG) {
                     _trendingTvShows.value = getMockTvShows()
                     _trendingMovies.value = getMockMovies()
                     _upcomingMovies.value = getMockUpcomingMovies()
@@ -276,8 +276,8 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                 val topRatedTvList = repository.getTopRatedTv()
                 val popularTvList = repository.getPopularTv()
 
-                _trendingTvShows.value = if (tvList.isNotEmpty()) tvList else if (com.example.BuildConfig.DEBUG) getMockTvShows() else emptyList()
-                _trendingMovies.value = if (movieList.isNotEmpty()) movieList else if (com.example.BuildConfig.DEBUG) getMockMovies() else emptyList()
+                _trendingTvShows.value = if (tvList.isNotEmpty()) tvList else if (com.jbuilds.bingemode.BuildConfig.DEBUG) getMockTvShows() else emptyList()
+                _trendingMovies.value = if (movieList.isNotEmpty()) movieList else if (com.jbuilds.bingemode.BuildConfig.DEBUG) getMockMovies() else emptyList()
                 
                 // Filter out any upcoming movie that already exists in trending to ensure zero duplicates
                 val trendingIds = movieList.mapNotNull { it.tmdbId }.toSet()
@@ -285,11 +285,11 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                 val filteredUpcoming = upcomingList.filter { 
                     it.tmdbId !in trendingIds && it.title.lowercase().trim() !in trendingTitles
                 }
-                _upcomingMovies.value = if (filteredUpcoming.isNotEmpty()) filteredUpcoming else if (com.example.BuildConfig.DEBUG) getMockUpcomingMovies() else emptyList()
+                _upcomingMovies.value = if (filteredUpcoming.isNotEmpty()) filteredUpcoming else if (com.jbuilds.bingemode.BuildConfig.DEBUG) getMockUpcomingMovies() else emptyList()
                 
-                _topRatedMovies.value = if (topRatedMovieList.isNotEmpty()) topRatedMovieList else if (com.example.BuildConfig.DEBUG) getMockTopRatedMovies() else emptyList()
-                _topRatedTvShows.value = if (topRatedTvList.isNotEmpty()) topRatedTvList else if (com.example.BuildConfig.DEBUG) getMockTopRatedTvShows() else emptyList()
-                _popularTvShows.value = if (popularTvList.isNotEmpty()) popularTvList else if (com.example.BuildConfig.DEBUG) getMockPopularTvShows() else emptyList()
+                _topRatedMovies.value = if (topRatedMovieList.isNotEmpty()) topRatedMovieList else if (com.jbuilds.bingemode.BuildConfig.DEBUG) getMockTopRatedMovies() else emptyList()
+                _topRatedTvShows.value = if (topRatedTvList.isNotEmpty()) topRatedTvList else if (com.jbuilds.bingemode.BuildConfig.DEBUG) getMockTopRatedTvShows() else emptyList()
+                _popularTvShows.value = if (popularTvList.isNotEmpty()) popularTvList else if (com.jbuilds.bingemode.BuildConfig.DEBUG) getMockPopularTvShows() else emptyList()
             } catch (e: Exception) {
                 e.printStackTrace()
                 _trendingTvShows.value = emptyList()
@@ -304,7 +304,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
         }
     }
 
-    fun fetchDiscoveryDetail(tmdbId: Int, isMovie: Boolean, onComplete: (com.example.data.repository.DiscoveryDetail) -> Unit) {
+    fun fetchDiscoveryDetail(tmdbId: Int, isMovie: Boolean, onComplete: (com.jbuilds.bingemode.data.repository.DiscoveryDetail) -> Unit) {
         viewModelScope.launch {
             try {
                 onComplete(repository.getDiscoveryDetail(tmdbId, isMovie))
@@ -1095,7 +1095,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     fun importBackup(jsonString: String, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
-                val payload = com.example.data.backup.BackupParser.parse(jsonString)
+                val payload = com.jbuilds.bingemode.data.backup.BackupParser.parse(jsonString)
                 val restoredCount = repository.restoreBackup(payload.shows, payload.settings)
 
                 _activeChecklistShow.value = null
@@ -1121,10 +1121,10 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
             try {
                 val showsList = repository.getAllShowsList()
                 val settingsList = repository.getAllSettings()
-                    .filter { it.key != com.example.data.backup.BackupParser.TMDB_KEY_SETTING }
+                    .filter { it.key != com.jbuilds.bingemode.data.backup.BackupParser.TMDB_KEY_SETTING }
 
                 onComplete(
-                    com.example.data.backup.BackupParser.serialize(showsList, settingsList)
+                    com.jbuilds.bingemode.data.backup.BackupParser.serialize(showsList, settingsList)
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -1137,7 +1137,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
     private var autoCheckReceiver: android.content.BroadcastReceiver? = null
 
     private fun startAutoCheckScanner() {
-        val workRequest = androidx.work.PeriodicWorkRequestBuilder<com.example.AutoCheckWorker>(
+        val workRequest = androidx.work.PeriodicWorkRequestBuilder<com.jbuilds.bingemode.AutoCheckWorker>(
             15, java.util.concurrent.TimeUnit.MINUTES
         ).build()
         androidx.work.WorkManager.getInstance(repository.context).enqueueUniquePeriodicWork(
@@ -1147,7 +1147,7 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
         )
         
         // Listen for updates from AutoCheckWorker
-        val filter = android.content.IntentFilter("com.example.ACTION_AUTO_CHECK_COMPLETED")
+        val filter = android.content.IntentFilter("com.jbuilds.bingemode.ACTION_AUTO_CHECK_COMPLETED")
         val receiver = object : android.content.BroadcastReceiver() {
             override fun onReceive(context: android.content.Context, intent: android.content.Intent) {
                 val showId = intent.getIntExtra("SHOW_ID", -1)
