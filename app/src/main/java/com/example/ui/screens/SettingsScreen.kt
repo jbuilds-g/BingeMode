@@ -1,6 +1,6 @@
-package com.example.ui.screens
+package com.jbuilds.bingemode.ui.screens
 
-import com.example.ui.theme.elementBorder
+import com.jbuilds.bingemode.ui.theme.elementBorder
 import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
@@ -46,10 +46,10 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.viewmodel.BingeViewModel
-import com.example.data.github.GitHubProfileRepository
-import com.example.BuildConfig
-import com.example.R
+import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
+import com.jbuilds.bingemode.data.github.GitHubProfileRepository
+import com.jbuilds.bingemode.BuildConfig
+import com.jbuilds.bingemode.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,7 +107,7 @@ fun SettingsScreen(
     var exportJsonText by remember { mutableStateOf("") }
     var showExportDialog by remember { mutableStateOf(false) }
     var showLicenseDialog by remember { mutableStateOf(false) }
-    var githubProfile by remember { mutableStateOf<com.example.data.github.GitHubProfile?>(null) }
+    var githubProfile by remember { mutableStateOf<com.jbuilds.bingemode.data.github.GitHubProfile?>(null) }
     
     var isIntegrationsExpanded by remember { mutableStateOf(false) }
     var isBackupExpanded by remember { mutableStateOf(false) }
