@@ -1,4 +1,4 @@
-package com.example.ui
+package com.jbuilds.bingemode.ui
 
 import android.widget.Toast
 import androidx.compose.animation.fadeIn
@@ -14,15 +14,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.ui.screens.AddShowScreen
-import com.example.ui.screens.BingeDashboardScreen
-import com.example.ui.screens.EditShowScreen
-import com.example.ui.screens.SectionGridScreen
-import com.example.ui.screens.SettingsScreen
-import com.example.ui.screens.ShowChecklistScreen
-import com.example.ui.screens.ThemeAndAppearanceScreen
-import com.example.ui.theme.BingeModeTheme
-import com.example.ui.viewmodel.BingeViewModel
+import com.jbuilds.bingemode.ui.screens.AddShowScreen
+import com.jbuilds.bingemode.ui.screens.BingeDashboardScreen
+import com.jbuilds.bingemode.ui.screens.EditShowScreen
+import com.jbuilds.bingemode.ui.screens.SectionGridScreen
+import com.jbuilds.bingemode.ui.screens.SettingsScreen
+import com.jbuilds.bingemode.ui.screens.ShowChecklistScreen
+import com.jbuilds.bingemode.ui.screens.ThemeAndAppearanceScreen
+import com.jbuilds.bingemode.ui.theme.BingeModeTheme
+import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
 
 @Composable
 fun BingeModeApp(
