@@ -1,6 +1,6 @@
-package com.example.ui.screens
+package com.jbuilds.bingemode.ui.screens
 
-import com.example.ui.theme.elementBorder
+import com.jbuilds.bingemode.ui.theme.elementBorder
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,10 +31,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.model.Show
-import com.example.ui.viewmodel.BingeViewModel
-import com.example.utils.AutoCheckHelper
-import com.example.utils.EpisodeTracker
+import com.jbuilds.bingemode.data.model.Show
+import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
+import com.jbuilds.bingemode.utils.AutoCheckHelper
+import com.jbuilds.bingemode.utils.EpisodeTracker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
