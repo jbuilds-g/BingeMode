@@ -1,4 +1,4 @@
-package com.example.data.github
+package com.jbuilds.bingemode.data.github
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
