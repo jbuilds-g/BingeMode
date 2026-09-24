@@ -1,4 +1,4 @@
-package com.example
+package com.jbuilds.bingemode
 
 import android.content.BroadcastReceiver
 import android.content.Intent
@@ -10,10 +10,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import com.example.data.repository.BingeRepository
-import com.example.ui.BingeModeApp
-import com.example.ui.viewmodel.BingeViewModel
-import com.example.ui.viewmodel.BingeViewModelFactory
+import com.jbuilds.bingemode.data.repository.BingeRepository
+import com.jbuilds.bingemode.ui.BingeModeApp
+import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
+import com.jbuilds.bingemode.ui.viewmodel.BingeViewModelFactory
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: BingeViewModel
@@ -38,13 +38,13 @@ class MainActivity : ComponentActivity() {
 
         cancelReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: android.content.Context, intent: Intent) {
-                if (intent.action == "com.example.ACTION_CANCEL_SIMULATION") {
+                if (intent.action == "com.jbuilds.bingemode.ACTION_CANCEL_SIMULATION") {
                     viewModel.cancelSimulation()
                 }
             }
         }
 
-        val filter = IntentFilter("com.example.ACTION_CANCEL_SIMULATION")
+        val filter = IntentFilter("com.jbuilds.bingemode.ACTION_CANCEL_SIMULATION")
         ContextCompat.registerReceiver(
             this,
             cancelReceiver,
