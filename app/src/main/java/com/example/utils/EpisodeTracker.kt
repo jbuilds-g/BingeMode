@@ -1,6 +1,6 @@
-package com.example.utils
+package com.jbuilds.bingemode.utils
 
-import com.example.data.model.Show
+import com.jbuilds.bingemode.data.model.Show
 
 /**
  * Robust utility for managing watched episode state with per-season preservation.
