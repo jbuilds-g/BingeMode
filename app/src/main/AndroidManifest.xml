@@ -28,12 +28,12 @@
         </activity>
         <receiver android:name=".receiver.AutomationReceiver" android:exported="false">
             <intent-filter>
-                <action android:name="com.example.ACTION_UNDO_AUTOMATION" />
+                <action android:name="com.jbuilds.bingemode.ACTION_UNDO_AUTOMATION" />
             </intent-filter>
         </receiver>
         <receiver android:name=".receiver.AutoCheckAlarmReceiver" android:exported="false">
             <intent-filter>
-                <action android:name="com.example.ACTION_TRIGGER_AUTO_CHECK" />
+                <action android:name="com.jbuilds.bingemode.ACTION_TRIGGER_AUTO_CHECK" />
             </intent-filter>
         </receiver>
     </application>
