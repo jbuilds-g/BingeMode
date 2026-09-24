@@ -1,4 +1,4 @@
-package com.example.utils
+package com.jbuilds.bingemode.utils
 
 import android.app.AlarmManager
 import android.app.NotificationChannel
@@ -8,10 +8,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import com.example.data.model.Show
-import com.example.data.repository.BingeRepository
-import com.example.receiver.AutoCheckAlarmReceiver
-import com.example.receiver.AutomationReceiver
+import com.jbuilds.bingemode.data.model.Show
+import com.jbuilds.bingemode.data.repository.BingeRepository
+import com.jbuilds.bingemode.receiver.AutoCheckAlarmReceiver
+import com.jbuilds.bingemode.receiver.AutomationReceiver
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -180,7 +180,7 @@ object AutoCheckHelper {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
 
         val intent = Intent(context, AutoCheckAlarmReceiver::class.java).apply {
-            action = "com.example.ACTION_TRIGGER_AUTO_CHECK"
+            action = "com.jbuilds.bingemode.ACTION_TRIGGER_AUTO_CHECK"
             putExtra("SHOW_ID", show.id)
         }
 
@@ -220,7 +220,7 @@ object AutoCheckHelper {
     fun cancelAlarm(context: Context, showId: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
         val intent = Intent(context, AutoCheckAlarmReceiver::class.java).apply {
-            action = "com.example.ACTION_TRIGGER_AUTO_CHECK"
+            action = "com.jbuilds.bingemode.ACTION_TRIGGER_AUTO_CHECK"
             putExtra("SHOW_ID", showId)
         }
         val pendingIntent = PendingIntent.getBroadcast(
@@ -445,7 +445,7 @@ object AutoCheckHelper {
 
         val notificationId = (System.currentTimeMillis() and 0x7FFFFFFF).toInt()
         val undoIntent = Intent(context, AutomationReceiver::class.java).apply {
-            action = "com.example.ACTION_UNDO_AUTOMATION"
+            action = "com.jbuilds.bingemode.ACTION_UNDO_AUTOMATION"
             putExtra("SHOW_ID", currentShow.id)
             putExtra("PREVIOUS_SEASON", previousSeason)
             putExtra("PREVIOUS_EPISODE_COUNT", previousEpisode)
@@ -478,7 +478,7 @@ object AutoCheckHelper {
         notificationManager.notify(notificationId, notification)
 
         // Broadcast to update UI and trigger in-app banner
-        val updateIntent = Intent("com.example.ACTION_AUTO_CHECK_COMPLETED").apply {
+        val updateIntent = Intent("com.jbuilds.bingemode.ACTION_AUTO_CHECK_COMPLETED").apply {
             putExtra("SHOW_ID", currentShow.id)
             putExtra("SEASON", targetSeasonNum)
             putExtra("EPISODE", targetEpisodeNum)
