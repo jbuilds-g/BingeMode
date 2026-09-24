@@ -8,6 +8,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.data.repository.BingeRepository
 import com.example.ui.BingeModeApp
@@ -44,11 +45,12 @@ class MainActivity : ComponentActivity() {
         }
 
         val filter = IntentFilter("com.example.ACTION_CANCEL_SIMULATION")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(cancelReceiver, filter, RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(cancelReceiver, filter)
-        }
+        ContextCompat.registerReceiver(
+            this,
+            cancelReceiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
         setContent {
             BingeModeApp(viewModel = viewModel)
