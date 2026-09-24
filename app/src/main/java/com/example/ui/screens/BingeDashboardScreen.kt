@@ -1,6 +1,6 @@
-package com.example.ui.screens
+package com.jbuilds.bingemode.ui.screens
 
-import com.example.ui.theme.elementBorder
+import com.jbuilds.bingemode.ui.theme.elementBorder
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -63,8 +63,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import coil.compose.AsyncImage
-import com.example.data.model.Show
-import com.example.ui.viewmodel.BingeViewModel
+import com.jbuilds.bingemode.data.model.Show
+import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -109,7 +109,7 @@ fun BingeDashboardScreen(
                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 androidx.compose.foundation.Image(
-                                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_app_logo),
+                                    painter = androidx.compose.ui.res.painterResource(id = com.jbuilds.bingemode.R.drawable.ic_app_logo),
                                     contentDescription = "BingeMode Logo",
                                     modifier = Modifier.size(32.dp)
                                 )
@@ -1380,7 +1380,7 @@ fun BingeDashboardScreen(
     // Modal Details Bottom Sheet for Discovery items selection
     if (selectedDiscoveryItem != null) {
         val item = selectedDiscoveryItem!!
-        var detailState by remember { mutableStateOf<com.example.data.repository.DiscoveryDetail?>(null) }
+        var detailState by remember { mutableStateOf<com.jbuilds.bingemode.data.repository.DiscoveryDetail?>(null) }
         var isDetailLoading by remember { mutableStateOf(false) }
 
         LaunchedEffect(selectedDiscoveryItem) {
