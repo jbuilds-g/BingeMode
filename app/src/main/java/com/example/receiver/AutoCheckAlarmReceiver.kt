@@ -30,7 +30,8 @@ class AutoCheckAlarmReceiver : BroadcastReceiver() {
                                 showId = show.id,
                                 addEps = addEps,
                                 nextLastRun = nextLastRun,
-                                tmdbApiKey = tmdbApiKey
+                                tmdbApiKey = tmdbApiKey,
+                                scheduled = true
                             )
                         } else if (nextLastRun != show.autoCheckLastRun) {
                             repository.saveShow(show.copy(autoCheckLastRun = nextLastRun))
