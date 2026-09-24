@@ -1,7 +1,7 @@
-package com.example
+package com.jbuilds.bingemode
 
-import com.example.data.model.Show
-import com.example.utils.AutoCheckHelper
+import com.jbuilds.bingemode.data.model.Show
+import com.jbuilds.bingemode.utils.AutoCheckHelper
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.Calendar
@@ -38,7 +38,7 @@ class AutoCheckHelperTest {
     fun testAutoCheckDoesNotRunForCompletedShow() {
         val show = Show(
             title = "Test",
-            seasonData = listOf(com.example.data.model.SeasonInfo(1, 2)),
+            seasonData = listOf(com.jbuilds.bingemode.data.model.SeasonInfo(1, 2)),
             watchedEpisodes = "s1:1,2",
             autoCheckEnabled = true,
             autoCheckLastRun = 1L
