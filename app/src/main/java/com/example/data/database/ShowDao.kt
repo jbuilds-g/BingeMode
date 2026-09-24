@@ -1,8 +1,8 @@
-package com.example.data.database
+package com.jbuilds.bingemode.data.database
 
 import androidx.room.*
-import com.example.data.model.Show
-import com.example.data.model.Setting
+import com.jbuilds.bingemode.data.model.Show
+import com.jbuilds.bingemode.data.model.Setting
 import kotlinx.coroutines.flow.Flow
 
 @Dao
