@@ -1,10 +1,10 @@
-package com.example.receiver
+package com.jbuilds.bingemode.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.example.data.repository.BingeRepository
-import com.example.utils.AutoCheckHelper
+import com.jbuilds.bingemode.data.repository.BingeRepository
+import com.jbuilds.bingemode.utils.AutoCheckHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
