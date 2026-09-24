@@ -1,12 +1,12 @@
-package com.example.data.repository
+package com.jbuilds.bingemode.data.repository
 
 import android.content.Context
-import com.example.data.api.TmdbService
-import com.example.data.database.BingeModeDatabase
-import com.example.data.model.Show
-import com.example.data.model.Setting
-import com.example.data.model.SeasonInfo
-import com.example.data.model.EpisodeInfo
+import com.jbuilds.bingemode.data.api.TmdbService
+import com.jbuilds.bingemode.data.database.BingeModeDatabase
+import com.jbuilds.bingemode.data.model.Show
+import com.jbuilds.bingemode.data.model.Setting
+import com.jbuilds.bingemode.data.model.SeasonInfo
+import com.jbuilds.bingemode.data.model.EpisodeInfo
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +30,7 @@ class BingeRepository(context: Context) {
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {
-            level = if (com.example.BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+            level = if (com.jbuilds.bingemode.BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         })
         .build()
 
@@ -346,7 +346,7 @@ class BingeRepository(context: Context) {
     suspend fun getDiscoveryDetail(tmdbId: Int, isMovie: Boolean): DiscoveryDetail {
         val apiKey = getSetting("tmdb_key")
         if (apiKey.isNullOrBlank()) {
-            if (com.example.BuildConfig.DEBUG) {
+            if (com.jbuilds.bingemode.BuildConfig.DEBUG) {
                 return getMockDiscoveryDetail(tmdbId, isMovie)
             }
             return DiscoveryDetail(
