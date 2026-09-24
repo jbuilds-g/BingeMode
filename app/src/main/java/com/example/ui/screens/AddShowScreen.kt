@@ -1,6 +1,6 @@
-package com.example.ui.screens
+package com.jbuilds.bingemode.ui.screens
 
-import com.example.ui.theme.elementBorder
+import com.jbuilds.bingemode.ui.theme.elementBorder
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
@@ -36,9 +36,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.data.model.EpisodeInfo
-import com.example.data.model.SeasonInfo
-import com.example.ui.viewmodel.BingeViewModel
+import com.jbuilds.bingemode.data.model.EpisodeInfo
+import com.jbuilds.bingemode.data.model.SeasonInfo
+import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
