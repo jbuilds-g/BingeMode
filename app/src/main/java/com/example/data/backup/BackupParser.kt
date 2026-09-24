@@ -1,7 +1,7 @@
-package com.example.data.backup
+package com.jbuilds.bingemode.data.backup
 
-import com.example.data.model.Setting
-import com.example.data.model.Show
+import com.jbuilds.bingemode.data.model.Setting
+import com.jbuilds.bingemode.data.model.Show
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
