@@ -560,7 +560,8 @@ object AutoCheckHelper {
                         showId = show.id,
                         addEps = addEps,
                         nextLastRun = nextLastRun,
-                        tmdbApiKey = tmdbApiKey
+                        tmdbApiKey = tmdbApiKey,
+                        scheduled = true
                     )
                     if (success) triggeredCount++
                 } else if (show.autoCheckLastRun <= 0L) {
