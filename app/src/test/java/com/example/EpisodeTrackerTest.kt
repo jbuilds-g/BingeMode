@@ -1,7 +1,7 @@
-package com.example
+package com.jbuilds.bingemode
 
-import com.example.data.model.Show
-import com.example.utils.EpisodeTracker
+import com.jbuilds.bingemode.data.model.Show
+import com.jbuilds.bingemode.utils.EpisodeTracker
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -81,7 +81,7 @@ class EpisodeTrackerTest {
     fun testCompletionRequiresEveryEpisode() {
         val incomplete = Show(
             title = "Test",
-            seasonData = listOf(com.example.data.model.SeasonInfo(1, 3)),
+            seasonData = listOf(com.jbuilds.bingemode.data.model.SeasonInfo(1, 3)),
             watchedEpisodes = EpisodeTracker.serializeMap(mapOf(1 to setOf(1, 3)))
         )
         val complete = incomplete.copy(
