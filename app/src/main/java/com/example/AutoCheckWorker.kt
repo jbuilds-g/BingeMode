@@ -1,10 +1,10 @@
-package com.example
+package com.jbuilds.bingemode
 
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.example.data.repository.BingeRepository
-import com.example.utils.AutoCheckHelper
+import com.jbuilds.bingemode.data.repository.BingeRepository
+import com.jbuilds.bingemode.utils.AutoCheckHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
