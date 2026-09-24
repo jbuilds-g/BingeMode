@@ -1,6 +1,6 @@
-package com.example.ui.screens
+package com.jbuilds.bingemode.ui.screens
 
-import com.example.ui.theme.elementBorder
+import com.jbuilds.bingemode.ui.theme.elementBorder
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,8 +27,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.viewmodel.BingeViewModel
-import com.example.utils.EpisodeTracker
+import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
+import com.jbuilds.bingemode.utils.EpisodeTracker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
