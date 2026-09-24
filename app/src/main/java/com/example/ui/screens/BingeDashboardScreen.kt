@@ -114,7 +114,7 @@ fun BingeDashboardScreen(
                                     modifier = Modifier.size(32.dp)
                                 )
                                 Text(
-                                    text = "BINGEMODE",
+                                    text = "BingeMode",
                                     fontWeight = FontWeight.Black,
                                     fontSize = 18.sp,
                                     letterSpacing = 1.5.sp,
