@@ -1,7 +1,7 @@
-package com.example.data.database
+package com.jbuilds.bingemode.data.database
 
 import androidx.room.TypeConverter
-import com.example.data.model.SeasonInfo
+import com.jbuilds.bingemode.data.model.SeasonInfo
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
