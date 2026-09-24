@@ -16,8 +16,14 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 object AutoCheckHelper {
+
+    // Auto-check can be triggered by AlarmManager, WorkManager, or a manual action.
+    // Keep the read -> evaluate -> write operation single-flight within the app process.
+    private val processAutoCheckMutex = Mutex()
 
     private const val CHANNEL_ID = "automation_channel"
     private const val CHANNEL_NAME = "Automation & Tracking"
@@ -299,6 +305,51 @@ object AutoCheckHelper {
      * Executes the episode check, preserves all seasons, updates DB, and sends notification.
      */
     suspend fun processAutoCheck(
+        context: Context,
+        repository: BingeRepository,
+        showId: Int,
+        addEps: Int,
+        nextLastRun: Long,
+        tmdbApiKey: String,
+        scheduled: Boolean = false
+    ): Boolean {
+        return processAutoCheckMutex.withLock {
+            // Scheduled callers may have evaluated the show before another trigger acquired
+            // the mutex. Re-evaluate from the latest database state while holding the lock.
+            if (scheduled) {
+                val latestShow = repository.getShowById(showId) ?: return@withLock false
+                val (freshAddEps, freshLastRun) = evaluateAutoCheck(
+                    latestShow,
+                    System.currentTimeMillis()
+                )
+                if (freshAddEps <= 0) {
+                    if (freshLastRun != latestShow.autoCheckLastRun) {
+                        repository.saveShow(latestShow.copy(autoCheckLastRun = freshLastRun))
+                    }
+                    return@withLock false
+                }
+                processAutoCheckLocked(
+                    context = context,
+                    repository = repository,
+                    showId = showId,
+                    addEps = freshAddEps,
+                    nextLastRun = freshLastRun,
+                    tmdbApiKey = tmdbApiKey
+                )
+            } else {
+                processAutoCheckLocked(
+                    context = context,
+                    repository = repository,
+                    showId = showId,
+                    addEps = addEps,
+                    nextLastRun = nextLastRun,
+                    tmdbApiKey = tmdbApiKey
+                )
+            }
+        }
+    }
+
+    private suspend fun processAutoCheckLocked(
         context: Context,
         repository: BingeRepository,
         showId: Int,
