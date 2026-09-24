@@ -1,4 +1,4 @@
-package com.example.ui.screens
+package com.jbuilds.bingemode.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -33,8 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.elementBorder
-import com.example.ui.viewmodel.BingeViewModel
+import com.jbuilds.bingemode.ui.theme.elementBorder
+import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
 
 data class ThemePreset(
     val id: String,
