@@ -1,4 +1,4 @@
-package com.example.data.model
+package com.jbuilds.bingemode.data.model
 
 import androidx.room.Entity
 import com.squareup.moshi.JsonClass
