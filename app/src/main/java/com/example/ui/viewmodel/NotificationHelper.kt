@@ -1,4 +1,4 @@
-package com.example.ui.viewmodel
+package com.jbuilds.bingemode.ui.viewmodel
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
