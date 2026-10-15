@@ -516,9 +516,10 @@ fun GridDiscoveryCard(
                         Icon(Icons.Rounded.Star, contentDescription = null, modifier = Modifier.size(11.dp), tint = MaterialTheme.colorScheme.primary)
                         Text(
                             text = if (item.rating > 0.0) String.format("%.1f", item.rating) else "N/A",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
                         )
                     }
                 }
@@ -528,8 +529,7 @@ fun GridDiscoveryCard(
             // Enabling maxLines = 2 for rich title descriptions, with centered typography alignment.
             Text(
                 text = item.title,
-                fontWeight = FontWeight.Bold,
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                 maxLines = 2,
                 minLines = 2, // Keeps layout alignment uniform across both posters
                 overflow = TextOverflow.Ellipsis,
@@ -543,9 +543,10 @@ fun GridDiscoveryCard(
             if (!item.releaseDate.isNullOrBlank()) {
                 Text(
                     text = item.releaseDate,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 10.dp),
