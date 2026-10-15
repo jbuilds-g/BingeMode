@@ -843,7 +843,7 @@ fun BingeDashboardScreen(
                                     shape = RoundedCornerShape(24.dp),
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(180.dp)
+                                        .height(220.dp)
                                         .padding(horizontal = 16.dp)
                                         .clip(RoundedCornerShape(24.dp))
                                         .clickable { selectedDiscoveryItem = featured },
@@ -864,8 +864,9 @@ fun BingeDashboardScreen(
                                                 .background(
                                                     Brush.verticalGradient(
                                                         colors = listOf(
-                                                            Color.Transparent,
-                                                            Color.Black.copy(alpha = 0.85f)
+                                                            Color.Black.copy(alpha = 0.08f),
+                                                            Color.Black.copy(alpha = 0.24f),
+                                                            Color.Black.copy(alpha = 0.92f)
                                                         )
                                                     )
                                                 )
@@ -885,16 +886,21 @@ fun BingeDashboardScreen(
                                             ) {
                                                 Text(
                                                     text = "POPULAR NOW",
-                                                    fontSize = 9.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = MaterialTheme.colorScheme.onPrimary
+                                                    style = MaterialTheme.typography.labelSmall.copy(
+                                                        fontWeight = FontWeight.Bold,
+                                                        letterSpacing = 0.5.sp,
+                                                        color = MaterialTheme.colorScheme.onPrimary
+                                                    )
                                                 )
                                             }
                                             Text(
                                                 text = featured.title,
-                                                fontWeight = FontWeight.Black,
-                                                fontSize = 20.sp,
-                                                color = Color.White
+                                                style = MaterialTheme.typography.headlineSmall.copy(
+                                                    fontWeight = FontWeight.Black,
+                                                    color = Color.White
+                                                ),
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
                                             )
                                             Row(
                                                 verticalAlignment = Alignment.CenterVertically,
@@ -903,9 +909,10 @@ fun BingeDashboardScreen(
                                                 Icon(Icons.Rounded.Star, contentDescription = null, modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.primary)
                                                 Text(
                                                     text = if (featured.rating > 0.0) String.format(java.util.Locale.US, "%.1f", featured.rating) else "N/A",
-                                                    fontSize = 12.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = Color.White
+                                                    style = MaterialTheme.typography.labelLarge.copy(
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = Color.White
+                                                    )
                                                 )
                                             }
                                         }
