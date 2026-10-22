@@ -841,7 +841,52 @@ fun BingeDashboardScreen(
                             .padding(horizontal = 16.dp)
                     )
 
-                    if (searchQuery.isNotBlank()) {
+                    androidx.compose.animation.AnimatedContent(
+                        targetState = searchQuery.isNotBlank(),
+                        transitionSpec = {
+                            if (targetState) {
+                                (
+                                    androidx.compose.animation.fadeIn(
+                                        animationSpec = androidx.compose.animation.core.tween(durationMillis = 220)
+                                    ) +
+                                        androidx.compose.animation.slideInVertically(
+                                            animationSpec = androidx.compose.animation.core.tween(
+                                                durationMillis = 260,
+                                                easing = androidx.compose.animation.core.FastOutSlowInEasing
+                                            )
+                                        ) { it / 16 }
+                                ).togetherWith(
+                                    androidx.compose.animation.fadeOut(
+                                        animationSpec = androidx.compose.animation.core.tween(durationMillis = 140)
+                                    ) +
+                                        androidx.compose.animation.slideOutVertically(
+                                            animationSpec = androidx.compose.animation.core.tween(durationMillis = 160)
+                                        ) { -it / 24 }
+                                )
+                            } else {
+                                (
+                                    androidx.compose.animation.fadeIn(
+                                        animationSpec = androidx.compose.animation.core.tween(durationMillis = 220)
+                                    ) +
+                                        androidx.compose.animation.slideInVertically(
+                                            animationSpec = androidx.compose.animation.core.tween(
+                                                durationMillis = 280,
+                                                easing = androidx.compose.animation.core.FastOutSlowInEasing
+                                            )
+                                        ) { -it / 24 }
+                                ).togetherWith(
+                                    androidx.compose.animation.fadeOut(
+                                        animationSpec = androidx.compose.animation.core.tween(durationMillis = 140)
+                                    ) +
+                                        androidx.compose.animation.slideOutVertically(
+                                            animationSpec = androidx.compose.animation.core.tween(durationMillis = 160)
+                                        ) { it / 32 }
+                                )
+                            }
+                        },
+                        label = "discoverySearchContent"
+                    ) { showingSearch ->
+                    if (showingSearch) {
                         if (isSearching) {
                             Box(
                                 modifier = Modifier
@@ -899,7 +944,22 @@ fun BingeDashboardScreen(
                                 color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             )
-                            searchResults.chunked(2).forEach { resultRow ->
+                            searchResults.chunked(2).forEachIndexed { rowIndex, resultRow ->
+                                androidx.compose.animation.AnimatedVisibility(
+                                    visible = true,
+                                    enter = androidx.compose.animation.fadeIn(
+                                        animationSpec = androidx.compose.animation.core.tween(
+                                            durationMillis = 220,
+                                            delayMillis = (rowIndex * 35).coerceAtMost(210)
+                                        )
+                                    ) + androidx.compose.animation.slideInVertically(
+                                        animationSpec = androidx.compose.animation.core.tween(
+                                            durationMillis = 240,
+                                            delayMillis = (rowIndex * 35).coerceAtMost(210),
+                                            easing = androidx.compose.animation.core.FastOutSlowInEasing
+                                        )
+                                    ) { it / 18 }
+                                ) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -927,6 +987,7 @@ fun BingeDashboardScreen(
                                     if (resultRow.size == 1) {
                                         Spacer(modifier = Modifier.weight(1f))
                                     }
+                                }
                                 }
                             }
                         }
@@ -1264,6 +1325,7 @@ fun BingeDashboardScreen(
                                 }
                             }
                         }
+                    }
                     }
                 }
             } else if (tab == 2) {
