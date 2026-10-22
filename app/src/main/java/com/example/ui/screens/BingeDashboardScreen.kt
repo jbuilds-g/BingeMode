@@ -899,7 +899,22 @@ fun BingeDashboardScreen(
                                 color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             )
-                            searchResults.chunked(2).forEach { resultRow ->
+                            searchResults.chunked(2).forEachIndexed { rowIndex, resultRow ->
+                                androidx.compose.animation.AnimatedVisibility(
+                                    visible = true,
+                                    enter = androidx.compose.animation.fadeIn(
+                                        animationSpec = androidx.compose.animation.core.tween(
+                                            durationMillis = 180,
+                                            delayMillis = (rowIndex * 25).coerceAtMost(150)
+                                        )
+                                    ) + androidx.compose.animation.slideInVertically(
+                                        animationSpec = androidx.compose.animation.core.tween(
+                                            durationMillis = 200,
+                                            delayMillis = (rowIndex * 25).coerceAtMost(150),
+                                            easing = androidx.compose.animation.core.FastOutSlowInEasing
+                                        )
+                                    ) { it / 24 }
+                                ) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -927,6 +942,7 @@ fun BingeDashboardScreen(
                                     if (resultRow.size == 1) {
                                         Spacer(modifier = Modifier.weight(1f))
                                     }
+                                }
                                 }
                             }
                         }
