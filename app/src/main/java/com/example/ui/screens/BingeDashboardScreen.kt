@@ -233,15 +233,39 @@ fun BingeDashboardScreen(
             targetState = activeTab,
             label = "tab_content_animation",
             transitionSpec = {
-                if (targetState > initialState) {
-                    (androidx.compose.animation.slideInHorizontally { it } + androidx.compose.animation.fadeIn()).togetherWith(
-                        androidx.compose.animation.slideOutHorizontally { -it } + androidx.compose.animation.fadeOut()
-                    )
-                } else {
-                    (androidx.compose.animation.slideInHorizontally { -it } + androidx.compose.animation.fadeIn()).togetherWith(
-                        androidx.compose.animation.slideOutHorizontally { it } + androidx.compose.animation.fadeOut()
-                    )
-                }
+                val direction = if (targetState > initialState) 1 else -1
+                (
+                    androidx.compose.animation.slideInHorizontally(
+                        animationSpec = androidx.compose.animation.core.tween(
+                            durationMillis = 280,
+                            easing = androidx.compose.animation.core.FastOutSlowInEasing
+                        )
+                    ) { direction * (it / 12) } +
+                        androidx.compose.animation.fadeIn(
+                            animationSpec = androidx.compose.animation.core.tween(durationMillis = 220)
+                        ) +
+                        androidx.compose.animation.scaleIn(
+                            initialScale = 0.985f,
+                            animationSpec = androidx.compose.animation.core.tween(
+                                durationMillis = 280,
+                                easing = androidx.compose.animation.core.FastOutSlowInEasing
+                            )
+                        )
+                ).togetherWith(
+                    androidx.compose.animation.slideOutHorizontally(
+                        animationSpec = androidx.compose.animation.core.tween(
+                            durationMillis = 170,
+                            easing = androidx.compose.animation.core.FastOutSlowInEasing
+                        )
+                    ) { -direction * (it / 18) } +
+                        androidx.compose.animation.fadeOut(
+                            animationSpec = androidx.compose.animation.core.tween(durationMillis = 150)
+                        ) +
+                        androidx.compose.animation.scaleOut(
+                            targetScale = 0.99f,
+                            animationSpec = androidx.compose.animation.core.tween(durationMillis = 170)
+                        )
+                )
             }
         ) { tab ->
             if (tab == 1) {
@@ -2182,12 +2206,26 @@ fun ExpressivePillNavItem(
     )
     val contentColor by androidx.compose.animation.animateColorAsState(
         targetValue = if (selected) activeContentColor else inactiveContentColor,
-        animationSpec = androidx.compose.animation.core.spring(stiffness = androidx.compose.animation.core.Spring.StiffnessLow),
+        animationSpec = androidx.compose.animation.core.tween(durationMillis = 180),
         label = "pillContentColor"
+    )
+    val iconScale by animateFloatAsState(
+        targetValue = if (selected) 1.06f else 1f,
+        animationSpec = androidx.compose.animation.core.tween(
+            durationMillis = 220,
+            easing = androidx.compose.animation.core.FastOutSlowInEasing
+        ),
+        label = "pillIconScale"
     )
 
     Box(
         modifier = Modifier
+            .animateContentSize(
+                animationSpec = androidx.compose.animation.core.spring(
+                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                )
+            )
             .height(44.dp)
             .clip(CircleShape)
             .background(containerColor)
@@ -2203,21 +2241,28 @@ fun ExpressivePillNavItem(
                 imageVector = icon,
                 contentDescription = label,
                 tint = contentColor,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier
+                    .size(20.dp)
+                    .graphicsLayer {
+                        scaleX = iconScale
+                        scaleY = iconScale
+                    }
             )
             androidx.compose.animation.AnimatedVisibility(
                 visible = selected && !hideNavLabels,
                 enter = androidx.compose.animation.expandHorizontally(
-                    animationSpec = androidx.compose.animation.core.spring(
-                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                        stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+                    animationSpec = androidx.compose.animation.core.tween(
+                        durationMillis = 220,
+                        easing = androidx.compose.animation.core.FastOutSlowInEasing
                     )
-                ) + androidx.compose.animation.fadeIn(),
+                ) + androidx.compose.animation.fadeIn(
+                    animationSpec = androidx.compose.animation.core.tween(durationMillis = 180)
+                ),
                 exit = androidx.compose.animation.shrinkHorizontally(
-                    animationSpec = androidx.compose.animation.core.spring(
-                        stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
-                    )
-                ) + androidx.compose.animation.fadeOut()
+                    animationSpec = androidx.compose.animation.core.tween(durationMillis = 150)
+                ) + androidx.compose.animation.fadeOut(
+                    animationSpec = androidx.compose.animation.core.tween(durationMillis = 120)
+                )
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Spacer(modifier = Modifier.width(8.dp))
