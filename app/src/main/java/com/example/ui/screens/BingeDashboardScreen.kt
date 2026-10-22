@@ -1567,6 +1567,17 @@ fun BingeDashboardScreen(
                         )
                     }
                 } else {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = !isDetailLoading,
+                        enter = androidx.compose.animation.fadeIn(
+                            animationSpec = androidx.compose.animation.core.tween(durationMillis = 240)
+                        ) + androidx.compose.animation.slideInVertically(
+                            animationSpec = androidx.compose.animation.core.tween(
+                                durationMillis = 300,
+                                easing = androidx.compose.animation.core.FastOutSlowInEasing
+                            )
+                        ) { it / 18 }
+                    ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -1760,6 +1771,7 @@ fun BingeDashboardScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp
                         )
+                    }
                     }
                 }
             }
