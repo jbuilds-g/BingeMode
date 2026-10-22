@@ -168,7 +168,7 @@ fun SectionGridScreen(
                     verticalArrangement = Arrangement.spacedBy(18.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    itemsIndexed(itemsList) { index, item ->
+                    itemsIndexed(itemsList, key = { _, item -> item.tmdbId ?: item.id }) { index, item ->
                         GridDiscoveryCard(item = item) {
                             selectedItem = item
                         }
