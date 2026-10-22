@@ -1522,6 +1522,14 @@ fun BingeDashboardScreen(
         val item = selectedDiscoveryItem!!
         var detailState by remember { mutableStateOf<com.jbuilds.bingemode.data.repository.DiscoveryDetail?>(null) }
         var isDetailLoading by remember { mutableStateOf(false) }
+        val detailHeaderProgress by androidx.compose.animation.core.animateFloatAsState(
+            targetValue = if (isDetailLoading) 0f else 1f,
+            animationSpec = androidx.compose.animation.core.tween(
+                durationMillis = 260,
+                easing = androidx.compose.animation.core.FastOutSlowInEasing
+            ),
+            label = "discoveryDetailHeader"
+        )
 
         LaunchedEffect(selectedDiscoveryItem) {
             isDetailLoading = true
@@ -1567,8 +1575,13 @@ fun BingeDashboardScreen(
                         )
                     }
                 } else {
-                                        Row(
-                        modifier = Modifier.fillMaxWidth(),
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .graphicsLayer {
+                                alpha = detailHeaderProgress
+                                translationY = (1f - detailHeaderProgress) * 12.dp.toPx()
+                            },
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalAlignment = Alignment.Top
                     ) {
