@@ -730,6 +730,9 @@ fun BingeDashboardScreen(
                 val popularTvShows by viewModel.popularTvShows.collectAsState()
                 val isDiscovering by viewModel.isDiscovering.collectAsState()
                 val apiKey by viewModel.tmdbApiKey.collectAsState()
+                val searchQuery by viewModel.searchQuery.collectAsState()
+                val searchResults by viewModel.searchResults.collectAsState()
+                val isSearching by viewModel.isSearching.collectAsState()
  
                 Column(
                     modifier = Modifier
@@ -779,40 +782,131 @@ fun BingeDashboardScreen(
                         }
                     }
  
-                    // Expressive Quick Search Access Bar
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .clip(CircleShape)
-                            .clickable { activeTab = 3 },
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f)
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
+                    // Inline Discovery search: keep the query and results on this page.
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = viewModel::onSearchQueryChanged,
+                        placeholder = { Text("Search movies, series, or genres...") },
+                        leadingIcon = {
                             Icon(
                                 imageVector = Icons.Rounded.Search,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp)
+                                tint = MaterialTheme.colorScheme.primary
                             )
-                            Text(
-                                text = "Search movies, series, or genres...",
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+                        },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Close,
+                                        contentDescription = "Clear search"
+                                    )
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        shape = CircleShape,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    )
 
-                    if (isDiscovering) {
+                    if (searchQuery.isNotBlank()) {
+                        if (isSearching) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(220.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                                    Text(
+                                        text = "Searching...",
+                                        fontSize = 13.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        } else if (searchResults.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 24.dp, vertical = 40.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.SearchOff,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(36.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        text = "No results found for \"$searchQuery\"",
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Text(
+                                        text = "Try another title or check the spelling.",
+                                        fontSize = 13.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        } else {
+                            Text(
+                                text = "Search Results (${searchResults.size})",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                            searchResults.chunked(2).forEach { resultRow ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    resultRow.forEach { resultShow ->
+                                        val isTracked = shows.any {
+                                            (it.tmdbId != null && it.tmdbId == resultShow.tmdbId) ||
+                                                it.title.equals(resultShow.title, ignoreCase = true)
+                                        }
+                                        Box(modifier = Modifier.weight(1f)) {
+                                            DiscoveryCardWithTrack(
+                                                item = resultShow,
+                                                isTracked = isTracked,
+                                                onCardClick = { selectedDiscoveryItem = resultShow },
+                                                onTrackClick = {
+                                                    if (!isTracked) {
+                                                        viewModel.trackDiscoveredShow(resultShow, context)
+                                                    }
+                                                }
+                                            )
+                                        }
+                                    }
+                                    if (resultRow.size == 1) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
+                        }
+                    } else if (isDiscovering) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
