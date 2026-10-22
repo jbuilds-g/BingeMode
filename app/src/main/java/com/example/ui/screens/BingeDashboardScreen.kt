@@ -80,7 +80,6 @@ fun BingeDashboardScreen(
     var showDeleteConfirmDialogForId by remember { mutableStateOf<Int?>(null) }
     var activeTab by remember { mutableIntStateOf(0) }
     var isFabExpanded by remember { mutableStateOf(false) }
-    var showSearchDialog by remember { mutableStateOf(false) }
     var selectedDiscoveryItem by remember { mutableStateOf<Show?>(null) }
     val hideNavLabels by viewModel.hideNavLabels.collectAsState()
     val context = LocalContext.current
@@ -786,7 +785,7 @@ fun BingeDashboardScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                             .clip(CircleShape)
-                            .clickable { showSearchDialog = true },
+                            .clickable { activeTab = 3 },
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                         border = androidx.compose.foundation.BorderStroke(
@@ -1633,17 +1632,6 @@ fun BingeDashboardScreen(
         }
     }
 
-    if (showSearchDialog) {
-        SearchBottomSheetDialog(
-            viewModel = viewModel,
-            trackedShows = shows,
-            onDismiss = { showSearchDialog = false },
-            onShowSelected = { show ->
-                showSearchDialog = false
-                selectedDiscoveryItem = show
-            }
-        )
-    }
     }
     }
     }
