@@ -3,7 +3,6 @@ package com.jbuilds.bingemode.ui.screens
 import com.jbuilds.bingemode.ui.theme.elementBorder
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -2207,26 +2206,12 @@ fun ExpressivePillNavItem(
     )
     val contentColor by androidx.compose.animation.animateColorAsState(
         targetValue = if (selected) activeContentColor else inactiveContentColor,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 180),
+        animationSpec = androidx.compose.animation.core.spring(stiffness = androidx.compose.animation.core.Spring.StiffnessLow),
         label = "pillContentColor"
-    )
-    val iconScale by animateFloatAsState(
-        targetValue = if (selected) 1.06f else 1f,
-        animationSpec = androidx.compose.animation.core.tween(
-            durationMillis = 220,
-            easing = androidx.compose.animation.core.FastOutSlowInEasing
-        ),
-        label = "pillIconScale"
     )
 
     Box(
         modifier = Modifier
-            .animateContentSize(
-                animationSpec = androidx.compose.animation.core.spring(
-                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
-                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
-                )
-            )
             .height(44.dp)
             .clip(CircleShape)
             .background(containerColor)
@@ -2242,28 +2227,21 @@ fun ExpressivePillNavItem(
                 imageVector = icon,
                 contentDescription = label,
                 tint = contentColor,
-                modifier = Modifier
-                    .size(20.dp)
-                    .graphicsLayer {
-                        scaleX = iconScale
-                        scaleY = iconScale
-                    }
+                modifier = Modifier.size(20.dp)
             )
             androidx.compose.animation.AnimatedVisibility(
                 visible = selected && !hideNavLabels,
                 enter = androidx.compose.animation.expandHorizontally(
-                    animationSpec = androidx.compose.animation.core.tween(
-                        durationMillis = 220,
-                        easing = androidx.compose.animation.core.FastOutSlowInEasing
+                    animationSpec = androidx.compose.animation.core.spring(
+                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                        stiffness = androidx.compose.animation.core.Spring.StiffnessLow
                     )
-                ) + androidx.compose.animation.fadeIn(
-                    animationSpec = androidx.compose.animation.core.tween(durationMillis = 180)
-                ),
+                ) + androidx.compose.animation.fadeIn(),
                 exit = androidx.compose.animation.shrinkHorizontally(
-                    animationSpec = androidx.compose.animation.core.tween(durationMillis = 150)
-                ) + androidx.compose.animation.fadeOut(
-                    animationSpec = androidx.compose.animation.core.tween(durationMillis = 120)
-                )
+                    animationSpec = androidx.compose.animation.core.spring(
+                        stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                    )
+                ) + androidx.compose.animation.fadeOut()
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Spacer(modifier = Modifier.width(8.dp))
