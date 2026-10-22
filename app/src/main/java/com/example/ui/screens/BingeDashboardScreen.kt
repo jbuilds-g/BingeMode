@@ -1078,7 +1078,7 @@ fun BingeDashboardScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    items(upcomingMovies) { mv ->
+                                    items(upcomingMovies, key = { it.tmdbId ?: it.id }) { mv ->
                                         DiscoveryCard(item = mv) {
                                             selectedDiscoveryItem = mv
                                         }
@@ -1114,7 +1114,7 @@ fun BingeDashboardScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    items(movies) { mv ->
+                                    items(movies, key = { it.tmdbId ?: it.id }) { mv ->
                                         DiscoveryCard(item = mv) {
                                             selectedDiscoveryItem = mv
                                         }
@@ -1161,7 +1161,7 @@ fun BingeDashboardScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    items(topRatedMovies) { mv ->
+                                    items(topRatedMovies, key = { it.tmdbId ?: it.id }) { mv ->
                                         DiscoveryCard(item = mv) {
                                             selectedDiscoveryItem = mv
                                         }
@@ -1233,7 +1233,7 @@ fun BingeDashboardScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    items(topRatedTvShows) { tv ->
+                                    items(topRatedTvShows, key = { it.tmdbId ?: it.id }) { tv ->
                                         DiscoveryCard(item = tv) {
                                             selectedDiscoveryItem = tv
                                         }
@@ -1269,7 +1269,7 @@ fun BingeDashboardScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    items(popularTvShows) { tv ->
+                                    items(popularTvShows, key = { it.tmdbId ?: it.id }) { tv ->
                                         DiscoveryCard(item = tv) {
                                             selectedDiscoveryItem = tv
                                         }
