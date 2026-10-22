@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ShowDao {
-    @Query("SELECT * FROM shows ORDER BY updated DESC")
+    @Query("SELECT * FROM shows ORDER BY id ASC")
     fun getAllShowsFlow(): Flow<List<Show>>
 
-    @Query("SELECT * FROM shows")
+    @Query("SELECT * FROM shows ORDER BY id ASC")
     suspend fun getAllShows(): List<Show>
 
     @Query("SELECT * FROM shows WHERE id = :id")
