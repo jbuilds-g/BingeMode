@@ -3,6 +3,7 @@ package com.jbuilds.bingemode.ui.screens
 import com.jbuilds.bingemode.ui.theme.elementBorder
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
