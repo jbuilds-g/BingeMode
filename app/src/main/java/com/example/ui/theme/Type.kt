@@ -1,6 +1,7 @@
 package com.jbuilds.bingemode.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -12,6 +13,7 @@ import com.jbuilds.bingemode.R
 /**
  * Google Sans Flex variable font family, with explicit weight-axis instances.
  */
+@OptIn(ExperimentalTextApi::class)
 private val GoogleSansFlex = FontFamily(
     Font(
         resId = R.font.google_sans_flex,
