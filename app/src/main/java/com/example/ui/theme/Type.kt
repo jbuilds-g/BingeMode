@@ -10,143 +10,54 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.jbuilds.bingemode.R
 
+private const val GoogleSansRoundedAxis = 100f
+
 /**
- * Google Sans Flex variable font family, with explicit weight-axis instances.
+ * Google Sans Flex rounded cut, matching mpvRx's app-wide body and UI typography.
  */
 @OptIn(ExperimentalTextApi::class)
-private val GoogleSansFlex = FontFamily(
-    Font(
-        resId = R.font.google_sans_flex,
-        weight = FontWeight.Normal,
-        variationSettings = FontVariation.Settings(FontVariation.weight(400))
-    ),
-    Font(
-        resId = R.font.google_sans_flex,
-        weight = FontWeight.Medium,
-        variationSettings = FontVariation.Settings(FontVariation.weight(500))
-    ),
-    Font(
-        resId = R.font.google_sans_flex,
-        weight = FontWeight.SemiBold,
-        variationSettings = FontVariation.Settings(FontVariation.weight(600))
-    ),
-    Font(
-        resId = R.font.google_sans_flex,
-        weight = FontWeight.Bold,
-        variationSettings = FontVariation.Settings(FontVariation.weight(700))
-    )
+private val GoogleSansRounded = FontFamily(
+    Font(R.font.google_sans_flex, FontWeight.Thin, FontVariation.Settings(FontVariation.weight(100), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.ExtraLight, FontVariation.Settings(FontVariation.weight(200), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.Light, FontVariation.Settings(FontVariation.weight(300), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.Normal, FontVariation.Settings(FontVariation.weight(400), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.Medium, FontVariation.Settings(FontVariation.weight(500), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.SemiBold, FontVariation.Settings(FontVariation.weight(600), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.Bold, FontVariation.Settings(FontVariation.weight(700), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.ExtraBold, FontVariation.Settings(FontVariation.weight(800), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.Black, FontVariation.Settings(FontVariation.weight(900), FontVariation.Setting("ROND", GoogleSansRoundedAxis)))
 )
 
 /**
- * BingeMode's Material 3 type scale.
- *
- * Keep typography semantic. Screens should prefer MaterialTheme.typography
- * instead of introducing one-off text styles.
+ * Wider, slanted expressive display cut used by mpvRx for headings.
+ */
+@OptIn(ExperimentalTextApi::class)
+private val GoogleSansExpressiveDisplay = FontFamily(
+    Font(R.font.google_sans_flex, FontWeight.Medium, FontVariation.Settings(FontVariation.weight(500), FontVariation.width(110f), FontVariation.slant(-4f), FontVariation.Setting("GRAD", 60f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.SemiBold, FontVariation.Settings(FontVariation.weight(600), FontVariation.width(111f), FontVariation.slant(-4f), FontVariation.Setting("GRAD", 70f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.Bold, FontVariation.Settings(FontVariation.weight(700), FontVariation.width(112f), FontVariation.slant(-4f), FontVariation.Setting("GRAD", 80f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.ExtraBold, FontVariation.Settings(FontVariation.weight(800), FontVariation.width(112f), FontVariation.slant(-3f), FontVariation.Setting("GRAD", 90f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(R.font.google_sans_flex, FontWeight.Black, FontVariation.Settings(FontVariation.weight(900), FontVariation.width(112f), FontVariation.slant(-2f), FontVariation.Setting("GRAD", 100f), FontVariation.Setting("ROND", GoogleSansRoundedAxis)))
+)
+
+/**
+ * BingeMode's Material 3 type scale. Font sizes, line heights and tracking are
+ * preserved; only the font's variable axes and semantic weight mapping change.
  */
 val Typography = Typography(
-    displayLarge = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Normal,
-        fontSize = 57.sp,
-        lineHeight = 64.sp,
-        letterSpacing = 0.sp
-    ),
-    displayMedium = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Normal,
-        fontSize = 45.sp,
-        lineHeight = 52.sp,
-        letterSpacing = 0.sp
-    ),
-    displaySmall = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Normal,
-        fontSize = 36.sp,
-        lineHeight = 44.sp,
-        letterSpacing = 0.sp
-    ),
-    headlineLarge = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Normal,
-        fontSize = 32.sp,
-        lineHeight = 40.sp,
-        letterSpacing = 0.sp
-    ),
-    headlineMedium = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Normal,
-        fontSize = 28.sp,
-        lineHeight = 36.sp,
-        letterSpacing = 0.sp
-    ),
-    headlineSmall = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Normal,
-        fontSize = 24.sp,
-        lineHeight = 32.sp,
-        letterSpacing = 0.sp
-    ),
-    titleLarge = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    titleMedium = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Medium,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.15.sp
-    ),
-    titleSmall = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.1.sp
-    ),
-    bodyLarge = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.15.sp
-    ),
-    bodyMedium = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.25.sp
-    ),
-    bodySmall = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.4.sp
-    ),
-    labelLarge = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.1.sp
-    ),
-    labelMedium = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Medium,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = GoogleSansFlex,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
+    displayLarge = TextStyle(fontFamily = GoogleSansExpressiveDisplay, fontWeight = FontWeight.Black, fontSize = 57.sp, lineHeight = 64.sp, letterSpacing = 0.sp),
+    displayMedium = TextStyle(fontFamily = GoogleSansExpressiveDisplay, fontWeight = FontWeight.ExtraBold, fontSize = 45.sp, lineHeight = 52.sp, letterSpacing = 0.sp),
+    displaySmall = TextStyle(fontFamily = GoogleSansExpressiveDisplay, fontWeight = FontWeight.Bold, fontSize = 36.sp, lineHeight = 44.sp, letterSpacing = 0.sp),
+    headlineLarge = TextStyle(fontFamily = GoogleSansExpressiveDisplay, fontWeight = FontWeight.Bold, fontSize = 32.sp, lineHeight = 40.sp, letterSpacing = 0.sp),
+    headlineMedium = TextStyle(fontFamily = GoogleSansExpressiveDisplay, fontWeight = FontWeight.SemiBold, fontSize = 28.sp, lineHeight = 36.sp, letterSpacing = 0.sp),
+    headlineSmall = TextStyle(fontFamily = GoogleSansExpressiveDisplay, fontWeight = FontWeight.SemiBold, fontSize = 24.sp, lineHeight = 32.sp, letterSpacing = 0.sp),
+    titleLarge = TextStyle(fontFamily = GoogleSansRounded, fontWeight = FontWeight.Medium, fontSize = 22.sp, lineHeight = 28.sp, letterSpacing = 0.sp),
+    titleMedium = TextStyle(fontFamily = GoogleSansRounded, fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.15.sp),
+    titleSmall = TextStyle(fontFamily = GoogleSansRounded, fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.1.sp),
+    bodyLarge = TextStyle(fontFamily = GoogleSansRounded, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.15.sp),
+    bodyMedium = TextStyle(fontFamily = GoogleSansRounded, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.25.sp),
+    bodySmall = TextStyle(fontFamily = GoogleSansRounded, fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.4.sp),
+    labelLarge = TextStyle(fontFamily = GoogleSansRounded, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.1.sp),
+    labelMedium = TextStyle(fontFamily = GoogleSansRounded, fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.5.sp),
+    labelSmall = TextStyle(fontFamily = GoogleSansRounded, fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 16.sp, letterSpacing = 0.5.sp)
 )
