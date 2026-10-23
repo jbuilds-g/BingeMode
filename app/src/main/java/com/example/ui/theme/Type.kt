@@ -17,15 +17,15 @@ private const val GoogleSansRoundedAxis = 100f
  */
 @OptIn(ExperimentalTextApi::class)
 private val GoogleSansRounded = FontFamily(
-    Font(R.font.google_sans_flex, FontWeight.Thin, FontVariation.Settings(FontVariation.weight(100), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.ExtraLight, FontVariation.Settings(FontVariation.weight(200), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.Light, FontVariation.Settings(FontVariation.weight(300), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.Normal, FontVariation.Settings(FontVariation.weight(400), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.Medium, FontVariation.Settings(FontVariation.weight(500), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.SemiBold, FontVariation.Settings(FontVariation.weight(600), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.Bold, FontVariation.Settings(FontVariation.weight(700), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.ExtraBold, FontVariation.Settings(FontVariation.weight(800), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.Black, FontVariation.Settings(FontVariation.weight(900), FontVariation.Setting("ROND", GoogleSansRoundedAxis)))
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.Thin, variationSettings = FontVariation.Settings(FontVariation.weight(100), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.ExtraLight, variationSettings = FontVariation.Settings(FontVariation.weight(200), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.Light, variationSettings = FontVariation.Settings(FontVariation.weight(300), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.Normal, variationSettings = FontVariation.Settings(FontVariation.weight(400), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.Medium, variationSettings = FontVariation.Settings(FontVariation.weight(500), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.SemiBold, variationSettings = FontVariation.Settings(FontVariation.weight(600), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.Bold, variationSettings = FontVariation.Settings(FontVariation.weight(700), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.ExtraBold, variationSettings = FontVariation.Settings(FontVariation.weight(800), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.Black, variationSettings = FontVariation.Settings(FontVariation.weight(900), FontVariation.Setting("ROND", GoogleSansRoundedAxis)))
 )
 
 /**
@@ -33,11 +33,11 @@ private val GoogleSansRounded = FontFamily(
  */
 @OptIn(ExperimentalTextApi::class)
 private val GoogleSansExpressiveDisplay = FontFamily(
-    Font(R.font.google_sans_flex, FontWeight.Medium, FontVariation.Settings(FontVariation.weight(500), FontVariation.width(110f), FontVariation.slant(-4f), FontVariation.Setting("GRAD", 60f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.SemiBold, FontVariation.Settings(FontVariation.weight(600), FontVariation.width(111f), FontVariation.slant(-4f), FontVariation.Setting("GRAD", 70f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.Bold, FontVariation.Settings(FontVariation.weight(700), FontVariation.width(112f), FontVariation.slant(-4f), FontVariation.Setting("GRAD", 80f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.ExtraBold, FontVariation.Settings(FontVariation.weight(800), FontVariation.width(112f), FontVariation.slant(-3f), FontVariation.Setting("GRAD", 90f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
-    Font(R.font.google_sans_flex, FontWeight.Black, FontVariation.Settings(FontVariation.weight(900), FontVariation.width(112f), FontVariation.slant(-2f), FontVariation.Setting("GRAD", 100f), FontVariation.Setting("ROND", GoogleSansRoundedAxis)))
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.Medium, variationSettings = FontVariation.Settings(FontVariation.weight(500), FontVariation.width(110f), FontVariation.slant(-4f), FontVariation.Setting("GRAD", 60f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.SemiBold, variationSettings = FontVariation.Settings(FontVariation.weight(600), FontVariation.width(111f), FontVariation.slant(-4f), FontVariation.Setting("GRAD", 70f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.Bold, variationSettings = FontVariation.Settings(FontVariation.weight(700), FontVariation.width(112f), FontVariation.slant(-4f), FontVariation.Setting("GRAD", 80f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.ExtraBold, variationSettings = FontVariation.Settings(FontVariation.weight(800), FontVariation.width(112f), FontVariation.slant(-3f), FontVariation.Setting("GRAD", 90f), FontVariation.Setting("ROND", GoogleSansRoundedAxis))),
+    Font(resId = R.font.google_sans_flex, weight = FontWeight.Black, variationSettings = FontVariation.Settings(FontVariation.weight(900), FontVariation.width(112f), FontVariation.slant(-2f), FontVariation.Setting("GRAD", 100f), FontVariation.Setting("ROND", GoogleSansRoundedAxis)))
 )
 
 /**
