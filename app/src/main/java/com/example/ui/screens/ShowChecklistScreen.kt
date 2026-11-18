@@ -1352,13 +1352,19 @@ fun AutoCheckConfigCard(
                         )
                     }
 
-                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Text(
                                 text = "Scheduled Auto-Check",
+                                modifier = Modifier.weight(1f),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp,
                                 color = MaterialTheme.colorScheme.onSurface
