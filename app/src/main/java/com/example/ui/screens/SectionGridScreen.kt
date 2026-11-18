@@ -72,7 +72,7 @@ fun SectionGridScreen(
     LaunchedEffect(sectionId) {
         isLoadingInitial = true
         val results = viewModel.fetchSectionPage(sectionId, 1)
-        itemsList = results
+        itemsList = results.distinctBy { "${it.mediaType}:${it.tmdbId ?: it.id}" }
         isLoadingInitial = false
     }
     
@@ -99,7 +99,7 @@ fun SectionGridScreen(
                 if (results.isEmpty()) {
                     hasCompletedAllPages = true
                 } else {
-                    itemsList = itemsList + results
+                    itemsList = (itemsList + results).distinctBy { "${it.mediaType}:${it.tmdbId ?: it.id}" }
                     currentPage = nextPage
                 }
                 isLoadingMore = false
@@ -168,7 +168,7 @@ fun SectionGridScreen(
                     verticalArrangement = Arrangement.spacedBy(18.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    itemsIndexed(itemsList, key = { _, item -> item.tmdbId ?: item.id }) { index, item ->
+                    itemsIndexed(itemsList, key = { _, item -> "${item.mediaType}:${item.tmdbId ?: item.id}" }) { index, item ->
                         GridDiscoveryCard(item = item) {
                             selectedItem = item
                         }
