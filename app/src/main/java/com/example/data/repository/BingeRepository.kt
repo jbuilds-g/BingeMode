@@ -169,7 +169,9 @@ class BingeRepository(context: Context) {
                 EpisodeInfo(
                     number = ep.episodeNumber,
                     name = ep.name,
-                    overview = ep.overview
+                    overview = ep.overview,
+                    runtime = ep.runtime,
+                    stillPath = ep.stillPath
                 )
             }
         } catch (e: Exception) {
@@ -370,7 +372,7 @@ class BingeRepository(context: Context) {
                     rating = details.voteAverage ?: 0.0,
                     dateOrSeason = details.releaseDate ?: "N/A",
                     genres = details.genres?.map { it.name } ?: listOf("Movie"),
-                    runtimeOrEpisodes = details.runtime?.let { "$it min" } ?: "N/A",
+                    runtimeOrEpisodes = com.jbuilds.bingemode.utils.RuntimeFormatter.format(details.runtime) ?: "N/A",
                     poster = posterUrl,
                     isMovie = true
                 )
@@ -405,7 +407,7 @@ class BingeRepository(context: Context) {
                     rating = 8.3,
                     dateOrSeason = "2024-03-01",
                     genres = listOf("Science Fiction", "Adventure"),
-                    runtimeOrEpisodes = "166 min",
+                    runtimeOrEpisodes = com.jbuilds.bingemode.utils.RuntimeFormatter.format(166) ?: "N/A",
                     poster = "https://image.tmdb.org/t/p/w500/cz062RhR639g8Y67UV56La6Ucrg.jpg",
                     isMovie = true
                 )
@@ -415,7 +417,7 @@ class BingeRepository(context: Context) {
                     rating = 8.4,
                     dateOrSeason = "2014-11-05",
                     genres = listOf("Science Fiction", "Drama", "Adventure"),
-                    runtimeOrEpisodes = "169 min",
+                    runtimeOrEpisodes = com.jbuilds.bingemode.utils.RuntimeFormatter.format(169) ?: "N/A",
                     poster = "https://image.tmdb.org/t/p/w500/gEU2Yth6uX6vSIGb6Zg7K7stb2R.jpg",
                     isMovie = true
                 )
@@ -425,7 +427,7 @@ class BingeRepository(context: Context) {
                     rating = 8.1,
                     dateOrSeason = "2023-07-20",
                     genres = listOf("Drama", "History"),
-                    runtimeOrEpisodes = "180 min",
+                    runtimeOrEpisodes = com.jbuilds.bingemode.utils.RuntimeFormatter.format(180) ?: "N/A",
                     poster = "https://image.tmdb.org/t/p/w500/8Gxv2gSjdh46g7asv56z0TdXfLq.jpg",
                     isMovie = true
                 )
@@ -435,7 +437,7 @@ class BingeRepository(context: Context) {
                     rating = 8.4,
                     dateOrSeason = "2023-06-01",
                     genres = listOf("Animation", "Action", "Adventure"),
-                    runtimeOrEpisodes = "140 min",
+                    runtimeOrEpisodes = com.jbuilds.bingemode.utils.RuntimeFormatter.format(140) ?: "N/A",
                     poster = "https://image.tmdb.org/t/p/w500/8vtB7p8v6P02vCl68vPRQQDMLvY.jpg",
                     isMovie = true
                 )
