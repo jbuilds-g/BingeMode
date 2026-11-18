@@ -264,6 +264,7 @@ fun SectionGridScreen(
                                     model = posterUrl,
                                     contentDescription = item.title,
                                     contentScale = ContentScale.Crop,
+                                    enableViewer = true,
                                     modifier = Modifier.fillMaxSize()
                                 )
                             } else {
