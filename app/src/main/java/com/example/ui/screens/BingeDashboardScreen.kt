@@ -1522,6 +1522,8 @@ fun BingeDashboardScreen(
         val item = selectedDiscoveryItem!!
         var detailState by remember { mutableStateOf<com.jbuilds.bingemode.data.repository.DiscoveryDetail?>(null) }
         var isDetailLoading by remember { mutableStateOf(false) }
+        var artwork by remember { mutableStateOf<List<String>>(emptyList()) }
+        var artworkLoaded by remember { mutableStateOf(false) }
         val detailHeaderProgress by androidx.compose.animation.core.animateFloatAsState(
             targetValue = if (isDetailLoading) 0f else 1f,
             animationSpec = androidx.compose.animation.core.tween(
@@ -1534,6 +1536,12 @@ fun BingeDashboardScreen(
         LaunchedEffect(selectedDiscoveryItem) {
             isDetailLoading = true
             detailState = null
+            artwork = emptyList()
+            artworkLoaded = false
+            viewModel.fetchArtwork(item.tmdbId ?: 0, item.status == "Movie") { images ->
+                artwork = images
+                artworkLoaded = true
+            }
             viewModel.fetchDiscoveryDetail(
                 tmdbId = item.tmdbId ?: 0,
                 isMovie = item.status == "Movie"
@@ -1749,6 +1757,32 @@ fun BingeDashboardScreen(
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
+
+                    if (artwork.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text("TMDB Photos & Artwork", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                            LazyVerticalGrid(
+                                columns = GridCells.Adaptive(minSize = 104.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(max = 420.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(artwork) { imageUrl ->
+                                    MediaImage(
+                                        model = imageUrl,
+                                        contentDescription = "TMDB artwork for ${item.title}",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxWidth().aspectRatio(0.72f).clip(RoundedCornerShape(10.dp))
+                                    )
+                                }
+                            }
+                        }
+                    } else if (artworkLoaded) {
+                        Text("No additional TMDB artwork available.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
 
                     Button(
                         onClick = {
