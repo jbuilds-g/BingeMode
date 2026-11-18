@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import com.jbuilds.bingemode.ui.components.MediaImage
 import com.jbuilds.bingemode.data.model.EpisodeInfo
 import com.jbuilds.bingemode.data.model.SeasonInfo
 import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
@@ -214,7 +214,7 @@ fun AddShowScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         if (posterUriOrUrl.isNotBlank()) {
-                            AsyncImage(
+                            MediaImage(
                                 model = posterUriOrUrl,
                                 contentDescription = "Poster Preview",
                                 contentScale = ContentScale.Crop,
