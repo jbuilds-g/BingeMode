@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jbuilds.bingemode.ui.screens.AddShowScreen
+import com.jbuilds.bingemode.ui.screens.ArtworkGalleryScreen
 import com.jbuilds.bingemode.ui.screens.BingeDashboardScreen
 import com.jbuilds.bingemode.ui.screens.EditShowScreen
 import com.jbuilds.bingemode.ui.screens.SectionGridScreen
@@ -92,7 +93,10 @@ fun BingeModeApp(
                     onNavigateToSettings = { navController.navigate("settings") },
                     onNavigateToChecklist = { id -> navController.navigate("checklist/$id") },
                     onNavigateToSectionGrid = { sectionId -> navController.navigate("section_grid/$sectionId") },
-                    onNavigateToThemeAppearance = { navController.navigate("theme_appearance") }
+                    onNavigateToThemeAppearance = { navController.navigate("theme_appearance") },
+                    onNavigateToArtworkGallery = { item ->
+                        navController.navigate("artwork_gallery/${item.tmdbId ?: 0}/${item.status == "Movie"}?title=${android.net.Uri.encode(item.title)}")
+                    }
                 )
             }
             composable("add_show") {
@@ -127,6 +131,18 @@ fun BingeModeApp(
                 val showId = backStackEntry.arguments?.getString("showId")?.toIntOrNull() ?: 0
                 EditShowScreen(
                     showId = showId,
+                    viewModel = viewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable("artwork_gallery/{tmdbId}/{isMovie}?title={title}") { backStackEntry ->
+                val tmdbId = backStackEntry.arguments?.getString("tmdbId")?.toIntOrNull() ?: 0
+                val isMovie = backStackEntry.arguments?.getString("isMovie")?.toBooleanStrictOrNull() ?: false
+                val title = backStackEntry.arguments?.getString("title").orEmpty()
+                ArtworkGalleryScreen(
+                    tmdbId = tmdbId,
+                    isMovie = isMovie,
+                    title = title,
                     viewModel = viewModel,
                     onNavigateBack = { navController.popBackStack() }
                 )
