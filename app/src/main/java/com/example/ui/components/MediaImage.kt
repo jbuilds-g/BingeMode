@@ -36,7 +36,8 @@ fun MediaImage(
     model: String?,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    contentScale: ContentScale = ContentScale.Crop
+    contentScale: ContentScale = ContentScale.Crop,
+    enableViewer: Boolean = false
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -67,7 +68,7 @@ fun MediaImage(
         model = model,
         contentDescription = contentDescription,
         contentScale = contentScale,
-        modifier = modifier.then(if (model != null) Modifier.clickableNoRipple { viewerOpen = true } else Modifier)
+        modifier = modifier.then(if (model != null && enableViewer) Modifier.clickableNoRipple { viewerOpen = true } else Modifier)
     )
 
     if (viewerOpen && model != null) {
