@@ -823,6 +823,7 @@ fun ShowChecklistScreen(
                         val epTitle = epObj?.name ?: "Episode $epIndex"
                         val epOverview = epObj?.overview
                         val episodeImageCollection = episodeNamesList
+                            .sortedBy { it.number }
                             .mapNotNull { episode ->
                                 episode.stillPath?.let { "https://image.tmdb.org/t/p/original$it" }
                             }
