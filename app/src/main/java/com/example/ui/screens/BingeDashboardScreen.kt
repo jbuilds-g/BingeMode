@@ -62,7 +62,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import coil.compose.AsyncImage
+import com.jbuilds.bingemode.ui.components.MediaImage
 import com.jbuilds.bingemode.data.model.Show
 import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
 
@@ -984,7 +984,7 @@ fun BingeDashboardScreen(
                                 ) {
                                     Box(modifier = Modifier.fillMaxSize()) {
                                         if (featured.poster != null) {
-                                            AsyncImage(
+                                            MediaImage(
                                                 model = featured.poster,
                                                 contentDescription = featured.title,
                                                 contentScale = ContentScale.Crop,
@@ -1595,7 +1595,7 @@ fun BingeDashboardScreen(
                         ) {
                             val posterUrl = detailState?.poster ?: item.poster
                             if (posterUrl != null) {
-                                AsyncImage(
+                                MediaImage(
                                     model = posterUrl,
                                     contentDescription = item.title,
                                     contentScale = ContentScale.Crop,
@@ -1832,7 +1832,7 @@ fun DiscoveryCard(
             ) {
                 if (item.poster != null) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        AsyncImage(
+                        MediaImage(
                             model = item.poster,
                             contentDescription = item.title,
                             contentScale = ContentScale.Crop,
@@ -1980,7 +1980,7 @@ fun ShowGridCard(
             ) {
                 if (show.poster != null) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        AsyncImage(
+                        MediaImage(
                             model = show.poster,
                             contentDescription = show.title,
                             contentScale = ContentScale.Crop,
@@ -2338,7 +2338,7 @@ fun DiscoveryCardWithTrack(
             ) {
                 if (item.poster != null) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        AsyncImage(
+                        MediaImage(
                             model = item.poster,
                             contentDescription = item.title,
                             contentScale = ContentScale.Crop,
