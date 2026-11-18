@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -33,6 +34,7 @@ import java.net.URL
  * Image tile with a swipeable full-screen collection viewer and user-selected download destination.
  * The Storage Access Framework avoids broad storage permissions on every supported Android version.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MediaImage(
     model: String?,
