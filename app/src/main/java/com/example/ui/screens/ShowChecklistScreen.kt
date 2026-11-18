@@ -822,6 +822,14 @@ fun ShowChecklistScreen(
                         val epObj = episodeNamesList.find { e -> e.number == epIndex }
                         val epTitle = epObj?.name ?: "Episode $epIndex"
                         val epOverview = epObj?.overview
+                        val episodeImageCollection = episodeNamesList
+                            .mapNotNull { episode ->
+                                episode.stillPath?.let { "https://image.tmdb.org/t/p/original$it" }
+                            }
+                            .distinct()
+                        val currentEpisodeImage = epObj?.stillPath?.let {
+                            "https://image.tmdb.org/t/p/original$it"
+                        }
 
                         EpisodeProgressRow(
                             seasonNum = show.season,
@@ -830,6 +838,8 @@ fun ShowChecklistScreen(
                             overview = epOverview,
                             runtime = epObj?.runtime,
                             thumbnailUrl = epObj?.stillPath?.let { "https://image.tmdb.org/t/p/w300$it" },
+                            viewerImages = episodeImageCollection,
+                            viewerIndex = episodeImageCollection.indexOf(currentEpisodeImage).coerceAtLeast(0),
                             isWatched = isWatched,
                             onClick = {
                                 viewModel.setWatchedEpisode(show.id, epIndex)
@@ -1145,6 +1155,8 @@ fun EpisodeProgressRow(
     overview: String?,
     runtime: Int? = null,
     thumbnailUrl: String? = null,
+    viewerImages: List<String> = emptyList(),
+    viewerIndex: Int = 0,
     isWatched: Boolean,
     onClick: () -> Unit
 ) {
@@ -1221,6 +1233,8 @@ fun EpisodeProgressRow(
                             contentDescription = "Episode $episodeNum thumbnail",
                             contentScale = ContentScale.Crop,
                             enableViewer = true,
+                            viewerImages = viewerImages,
+                            viewerIndex = viewerIndex,
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
