@@ -39,7 +39,9 @@ data class SeasonInfo(
 data class EpisodeInfo(
     val number: Int,
     val name: String,
-    val overview: String? = null
+    val overview: String? = null,
+    val runtime: Int? = null,
+    val stillPath: String? = null
 )
 
 @Entity(tableName = "settings")
