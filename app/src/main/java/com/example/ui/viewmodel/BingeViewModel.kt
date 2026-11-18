@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.jbuilds.bingemode.data.model.EpisodeInfo
 import com.jbuilds.bingemode.data.model.SeasonInfo
 import com.jbuilds.bingemode.data.model.Show
+import com.jbuilds.bingemode.data.api.ArtworkGallery
 import com.jbuilds.bingemode.data.repository.BingeRepository
 import com.jbuilds.bingemode.utils.AutoCheckHelper
 import com.jbuilds.bingemode.utils.EpisodeTracker
@@ -304,13 +305,13 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
         }
     }
 
-    fun fetchArtwork(tmdbId: Int, isMovie: Boolean, onComplete: (List<String>) -> Unit) {
+    fun fetchArtwork(tmdbId: Int, isMovie: Boolean, onComplete: (ArtworkGallery) -> Unit) {
         viewModelScope.launch {
             try {
                 onComplete(repository.getArtwork(tmdbId, isMovie))
             } catch (e: Exception) {
                 _toastMessage.value = "TMDB artwork couldn't be loaded."
-                onComplete(emptyList())
+                onComplete(ArtworkGallery())
             }
         }
     }
