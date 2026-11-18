@@ -42,6 +42,12 @@ interface TmdbService {
         @Query("page") page: Int
     ): TmdbTrendingMovieResponse
 
+    @GET("movie/{movie_id}/images")
+    suspend fun getMovieImages(@Path("movie_id") movieId: Int, @Query("api_key") apiKey: String): TmdbImagesResponse
+
+    @GET("tv/{series_id}/images")
+    suspend fun getTvImages(@Path("series_id") seriesId: Int, @Query("api_key") apiKey: String): TmdbImagesResponse
+
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(
         @Path("movie_id") movieId: Int,
