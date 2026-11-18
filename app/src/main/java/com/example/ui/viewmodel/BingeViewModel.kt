@@ -898,7 +898,12 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
 
                 // 2. Fetch missing Episode Names for current active season
                 val currentSeasonObj = updatedSeasonData.find { s -> s.number == initialShow.season }
-                if (currentSeasonObj != null && currentSeasonObj.episodeList.isNullOrEmpty()) {
+                if (currentSeasonObj != null && (
+                    currentSeasonObj.episodeList.isNullOrEmpty() ||
+                    currentSeasonObj.episodeList.any { episode ->
+                        episode.runtime == null || episode.stillPath.isNullOrBlank()
+                    }
+                )) {
                     val epList = repository.getSeasonEpisodes(tmdbId, initialShow.season)
                     if (epList != null) {
                         updatedSeasonData = updatedSeasonData.map { s ->
