@@ -344,6 +344,16 @@ class BingeRepository(context: Context) {
         }
     }
 
+    suspend fun getArtwork(tmdbId: Int, isMovie: Boolean): List<String> {
+        val apiKey = getSetting("tmdb_key")?.takeIf { it.isNotBlank() } ?: return emptyList()
+        return try {
+            val images = if (isMovie) tmdbService.getMovieImages(tmdbId, apiKey) else tmdbService.getTvImages(tmdbId, apiKey)
+            (images.posters + images.backdrops + images.logos).map { "https://image.tmdb.org/t/p/original${it.filePath}" }.distinct()
+        } catch (e: Exception) {
+            throw TmdbApiException("TMDB artwork request failed", e)
+        }
+    }
+
     // Live and fallback full info details resolver for Discovery card modal selection
     suspend fun getDiscoveryDetail(tmdbId: Int, isMovie: Boolean): DiscoveryDetail {
         val apiKey = getSetting("tmdb_key")
