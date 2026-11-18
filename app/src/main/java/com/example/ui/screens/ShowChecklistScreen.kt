@@ -20,7 +20,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.*
 import androidx.compose.ui.layout.ContentScale
-import coil.compose.AsyncImage
+import com.jbuilds.bingemode.ui.components.MediaImage
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -243,7 +243,7 @@ fun ShowChecklistScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (show.poster != null) {
-                                        coil.compose.AsyncImage(
+                                        coil.compose.MediaImage(
                                             model = show.poster,
                                             contentDescription = show.title,
                                             contentScale = androidx.compose.ui.layout.ContentScale.Crop,
@@ -597,7 +597,7 @@ fun ShowChecklistScreen(
                                             .height(150.dp)
                                             .clip(RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp))
                                     ) {
-                                        coil.compose.AsyncImage(
+                                        coil.compose.MediaImage(
                                             model = show.poster,
                                             contentDescription = show.title,
                                             contentScale = androidx.compose.ui.layout.ContentScale.Crop,
@@ -1214,7 +1214,7 @@ fun EpisodeProgressRow(
                     contentAlignment = Alignment.Center
                 ) {
                     if (!thumbnailUrl.isNullOrBlank()) {
-                        AsyncImage(
+                        MediaImage(
                             model = thumbnailUrl,
                             contentDescription = "Episode $episodeNum thumbnail",
                             contentScale = ContentScale.Crop,
