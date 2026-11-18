@@ -5,8 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -107,12 +108,15 @@ fun ArtworkGalleryScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        items(images.distinct()) { imageUrl ->
+                        itemsIndexed(images.distinct(), key = { _, imageUrl -> imageUrl }) { index, imageUrl ->
+                            val collection = images.distinct()
                             MediaImage(
                                 model = imageUrl,
                                 contentDescription = "$selectedCategory for $title",
                                 contentScale = ContentScale.Crop,
                                 enableViewer = true,
+                                viewerImages = collection,
+                                viewerIndex = index,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .aspectRatio(
@@ -147,12 +151,15 @@ fun ArtworkGalleryScreen(
                                     contentPadding = PaddingValues(horizontal = 16.dp),
                                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                                 ) {
-                                    items(images.take(8)) { imageUrl ->
+                                    itemsIndexed(images.take(8), key = { _, imageUrl -> imageUrl }) { _, imageUrl ->
+                                        val collection = images.distinct()
                                         MediaImage(
                                             model = imageUrl,
                                             contentDescription = "$category for $title",
                                             contentScale = ContentScale.Crop,
                                             enableViewer = true,
+                                            viewerImages = collection,
+                                            viewerIndex = collection.indexOf(imageUrl).coerceAtLeast(0),
                                             modifier = Modifier
                                                 .width(124.dp)
                                                 .aspectRatio(
