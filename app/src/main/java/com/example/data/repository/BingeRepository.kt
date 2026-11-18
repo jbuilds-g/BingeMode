@@ -2,6 +2,8 @@ package com.jbuilds.bingemode.data.repository
 
 import android.content.Context
 import com.jbuilds.bingemode.data.api.TmdbService
+import com.jbuilds.bingemode.data.api.ArtworkGallery
+import com.jbuilds.bingemode.data.api.TmdbImageItem
 import com.jbuilds.bingemode.data.database.BingeModeDatabase
 import com.jbuilds.bingemode.data.model.Show
 import com.jbuilds.bingemode.data.model.Setting
