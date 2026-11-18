@@ -139,7 +139,7 @@ class BingeRepository(context: Context) {
         if (apiKey.isBlank()) return null
         return try {
             val details = tmdbService.getTvDetails(tmdbId, apiKey)
-            val posterUrl = details.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
+            val posterUrl = details.posterPath?.let { "https://image.tmdb.org/t/p/original$it" }
             val seasonsMap = details.seasons
                 ?.filter { it.seasonNumber > 0 }
                 ?.map { SeasonInfo(number = it.seasonNumber, episodes = it.episodeCount) }
@@ -232,7 +232,7 @@ class BingeRepository(context: Context) {
         if (apiKey.isBlank()) return null
         return try {
             val details = tmdbService.getMovieDetails(tmdbId, apiKey)
-            val posterUrl = details.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
+            val posterUrl = details.posterPath?.let { "https://image.tmdb.org/t/p/original$it" }
             Show(
                 title = details.title,
                 tmdbId = details.id,
@@ -344,11 +344,17 @@ class BingeRepository(context: Context) {
         }
     }
 
-    suspend fun getArtwork(tmdbId: Int, isMovie: Boolean): List<String> {
-        val apiKey = getSetting("tmdb_key")?.takeIf { it.isNotBlank() } ?: return emptyList()
+    suspend fun getArtwork(tmdbId: Int, isMovie: Boolean): ArtworkGallery {
+        val apiKey = getSetting("tmdb_key")?.takeIf { it.isNotBlank() } ?: return ArtworkGallery()
         return try {
             val images = if (isMovie) tmdbService.getMovieImages(tmdbId, apiKey) else tmdbService.getTvImages(tmdbId, apiKey)
-            (images.posters + images.backdrops + images.logos).map { "https://image.tmdb.org/t/p/original${it.filePath}" }.distinct()
+            fun List<TmdbImageItem>.urls() = map { "https://image.tmdb.org/t/p/original${it.filePath}" }.distinct()
+            ArtworkGallery(
+                posters = images.posters.urls(),
+                backdrops = images.backdrops.urls(),
+                logos = images.logos.urls(),
+                stills = images.stills.urls()
+            )
         } catch (e: Exception) {
             throw TmdbApiException("TMDB artwork request failed", e)
         }
@@ -375,7 +381,7 @@ class BingeRepository(context: Context) {
         return try {
             if (isMovie) {
                 val details = tmdbService.getMovieDetails(tmdbId, apiKey)
-                val posterUrl = details.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
+                val posterUrl = details.posterPath?.let { "https://image.tmdb.org/t/p/original$it" }
                 DiscoveryDetail(
                     title = details.title,
                     overview = details.overview ?: "No synopsis available.",
@@ -388,7 +394,7 @@ class BingeRepository(context: Context) {
                 )
             } else {
                 val details = tmdbService.getTvDetails(tmdbId, apiKey)
-                val posterUrl = details.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
+                val posterUrl = details.posterPath?.let { "https://image.tmdb.org/t/p/original$it" }
                 val runtimeStr = details.seasons?.let { seasonsList ->
                     "${seasonsList.size} Seasons (${seasonsList.sumOf { s -> s.episodeCount }} Episodes)"
                 } ?: "N/A"
