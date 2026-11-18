@@ -1,6 +1,6 @@
 package com.jbuilds.bingemode.ui.components
 
-import android.content.Intent
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Download
@@ -15,10 +17,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
@@ -28,7 +30,7 @@ import kotlinx.coroutines.withContext
 import java.net.URL
 
 /**
- * Image tile with a shared full-screen zoom viewer and user-selected download destination.
+ * Image tile with a swipeable full-screen collection viewer and user-selected download destination.
  * The Storage Access Framework avoids broad storage permissions on every supported Android version.
  */
 @Composable
@@ -37,22 +39,34 @@ fun MediaImage(
     contentDescription: String?,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
-    enableViewer: Boolean = false
+    enableViewer: Boolean = false,
+    viewerImages: List<String> = emptyList(),
+    viewerIndex: Int = 0
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var viewerOpen by remember { mutableStateOf(false) }
-    var saveError by remember { mutableStateOf<String?>(null) }
-    val fileName = remember(model) {
-        Uri.parse(model ?: "").lastPathSegment?.substringBefore("?")?.takeIf { it.contains('.') }
-            ?: "bingemode-image.jpg"
+    var saveTarget by remember { mutableStateOf<String?>(null) }
+    val imageUrls = remember(model, viewerImages) {
+        (viewerImages.ifEmpty { listOfNotNull(model) })
+            .map { it.toOriginalTmdbImageUrl() }
+            .distinct()
     }
-    val saveLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/*")) { uri ->
-        if (uri != null && model != null) {
+    val initialPage = viewerIndex.coerceIn(0, (imageUrls.size - 1).coerceAtLeast(0))
+    val pagerState = rememberPagerState(
+        initialPage = initialPage,
+        pageCount = { imageUrls.size }
+    )
+
+    val saveLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("image/*")
+    ) { uri ->
+        val target = saveTarget
+        if (uri != null && target != null) {
             scope.launch {
                 try {
                     withContext(Dispatchers.IO) {
-                        val bytes = if (model.startsWith("http://") || model.startsWith("https://")) { URL(model).openStream().use { it.readBytes() } } else { context.contentResolver.openInputStream(Uri.parse(model))?.use { it.readBytes() } ?: error("Could not read image.") }
+                        val bytes = readImageBytes(context, target)
                         context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
                             ?: error("Could not open the selected destination.")
                     }
@@ -62,59 +76,120 @@ fun MediaImage(
                 }
             }
         }
+        saveTarget = null
     }
 
     AsyncImage(
         model = model,
         contentDescription = contentDescription,
         contentScale = contentScale,
-        modifier = modifier.then(if (model != null && enableViewer) Modifier.clickableNoRipple { viewerOpen = true } else Modifier)
+        modifier = modifier.then(
+            if (model != null && enableViewer) Modifier.clickableNoRipple { viewerOpen = true }
+            else Modifier
+        )
     )
 
-    if (viewerOpen && model != null) {
-        var scale by remember(model) { mutableFloatStateOf(1f) }
-        var offsetX by remember(model) { mutableFloatStateOf(0f) }
-        var offsetY by remember(model) { mutableFloatStateOf(0f) }
-        val transformState = rememberTransformableState { zoom, pan, _ ->
-            scale = (scale * zoom).coerceIn(1f, 5f)
-            offsetX += pan.x
-            offsetY += pan.y
-        }
+    if (viewerOpen && imageUrls.isNotEmpty()) {
         Dialog(
             onDismissRequest = { viewerOpen = false },
             properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
         ) {
-            Surface(modifier = Modifier.fillMaxSize(), color = androidx.compose.ui.graphics.Color.Black) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = androidx.compose.ui.graphics.Color.Black
+            ) {
                 Box(Modifier.fillMaxSize()) {
-                    AsyncImage(
-                        model = model,
-                        contentDescription = contentDescription,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .transformable(transformState)
-                            .graphicsLayer {
-                                scaleX = scale
-                                scaleY = scale
-                                translationX = offsetX
-                                translationY = offsetY
-                            }
-                    )
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize(),
+                        key = { imageUrls[it] }
+                    ) { page ->
+                        val imageUrl = imageUrls[page]
+                        var scale by remember(imageUrl) { mutableFloatStateOf(1f) }
+                        var offsetX by remember(imageUrl) { mutableFloatStateOf(0f) }
+                        var offsetY by remember(imageUrl) { mutableFloatStateOf(0f) }
+                        val transformState = rememberTransformableState { zoom, pan, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f)
+                            offsetX += pan.x
+                            offsetY += pan.y
+                        }
+                        AsyncImage(
+                            model = imageUrl,
+                            contentDescription = contentDescription,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .transformable(transformState)
+                                .graphicsLayer {
+                                    scaleX = scale
+                                    scaleY = scale
+                                    translationX = offsetX
+                                    translationY = offsetY
+                                }
+                        )
+                    }
+
                     Row(
                         modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        IconButton(onClick = { saveLauncher.launch(fileName) }) {
-                            Icon(Icons.Rounded.Download, "Save image", tint = androidx.compose.ui.graphics.Color.White)
+                        IconButton(onClick = {
+                            val currentImage = imageUrls[pagerState.currentPage]
+                            saveTarget = currentImage
+                            saveLauncher.launch(imageFileName(currentImage))
+                        }) {
+                            Icon(
+                                Icons.Rounded.Download,
+                                "Save image",
+                                tint = androidx.compose.ui.graphics.Color.White
+                            )
                         }
                         IconButton(onClick = { viewerOpen = false }) {
-                            Icon(Icons.Rounded.Close, "Close viewer", tint = androidx.compose.ui.graphics.Color.White)
+                            Icon(
+                                Icons.Rounded.Close,
+                                "Close viewer",
+                                tint = androidx.compose.ui.graphics.Color.White
+                            )
+                        }
+                    }
+
+                    if (imageUrls.size > 1) {
+                        Surface(
+                            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp),
+                            color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.65f),
+                            shape = MaterialTheme.shapes.extraLarge
+                        ) {
+                            Text(
+                                text = "${pagerState.currentPage + 1} / ${imageUrls.size}",
+                                color = androidx.compose.ui.graphics.Color.White,
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+                            )
                         }
                     }
                 }
             }
         }
     }
+}
+
+private suspend fun readImageBytes(context: Context, image: String): ByteArray =
+    withContext(Dispatchers.IO) {
+        if (image.startsWith("http://") || image.startsWith("https://")) {
+            URL(image).openStream().use { it.readBytes() }
+        } else {
+            context.contentResolver.openInputStream(Uri.parse(image))?.use { it.readBytes() }
+                ?: error("Could not read image.")
+        }
+    }
+
+private fun imageFileName(image: String): String =
+    Uri.parse(image).lastPathSegment?.substringBefore("?")?.takeIf { it.contains('.') }
+        ?: "bingemode-image.jpg"
+
+private fun String.toOriginalTmdbImageUrl(): String {
+    if (Uri.parse(this).host != "image.tmdb.org") return this
+    return replace(Regex("/t/p/(?:w\\d+|h\\d+|original)/"), "/t/p/original/")
 }
 
 private fun Modifier.clickableNoRipple(onClick: () -> Unit): Modifier =
