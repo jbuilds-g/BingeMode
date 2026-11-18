@@ -117,7 +117,15 @@ data class TmdbMovieDetails(
 data class TmdbImagesResponse(
     val posters: List<TmdbImageItem> = emptyList(),
     val backdrops: List<TmdbImageItem> = emptyList(),
-    val logos: List<TmdbImageItem> = emptyList()
+    val logos: List<TmdbImageItem> = emptyList(),
+    val stills: List<TmdbImageItem> = emptyList()
+)
+
+data class ArtworkGallery(
+    val posters: List<String> = emptyList(),
+    val backdrops: List<String> = emptyList(),
+    val logos: List<String> = emptyList(),
+    val stills: List<String> = emptyList()
 )
 
 @JsonClass(generateAdapter = true)
