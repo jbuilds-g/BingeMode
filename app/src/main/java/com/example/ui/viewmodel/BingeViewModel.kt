@@ -304,6 +304,17 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
         }
     }
 
+    fun fetchArtwork(tmdbId: Int, isMovie: Boolean, onComplete: (List<String>) -> Unit) {
+        viewModelScope.launch {
+            try {
+                onComplete(repository.getArtwork(tmdbId, isMovie))
+            } catch (e: Exception) {
+                _toastMessage.value = "TMDB artwork couldn't be loaded."
+                onComplete(emptyList())
+            }
+        }
+    }
+
     fun fetchDiscoveryDetail(tmdbId: Int, isMovie: Boolean, onComplete: (com.jbuilds.bingemode.data.repository.DiscoveryDetail) -> Unit) {
         viewModelScope.launch {
             try {
