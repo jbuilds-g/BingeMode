@@ -1778,10 +1778,6 @@ fun BingeDashboardScreen(
                             Text("No additional TMDB artwork available.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         } else {
                             Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text("Photos & Artwork", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
-                                    TextButton(onClick = { isGalleryOpen = true }) { Text("Browse") }
-                                }
                                 if (isGalleryOpen) {
                                 if (selectedArtworkCategory == null) {
                                     categories.forEach { (category, images) ->
