@@ -1524,6 +1524,8 @@ fun BingeDashboardScreen(
         var isDetailLoading by remember { mutableStateOf(false) }
         var artwork by remember { mutableStateOf<com.jbuilds.bingemode.data.api.ArtworkGallery?>(null) }
         var selectedArtworkCategory by remember { mutableStateOf<String?>(null) }
+        var isGalleryOpen by remember { mutableStateOf(false) }
+        var isArtworkLoading by remember { mutableStateOf(true) }
         var artworkLoaded by remember { mutableStateOf(false) }
         val detailHeaderProgress by androidx.compose.animation.core.animateFloatAsState(
             targetValue = if (isDetailLoading) 0f else 1f,
@@ -1539,9 +1541,12 @@ fun BingeDashboardScreen(
             detailState = null
             artwork = null
             selectedArtworkCategory = null
+            isGalleryOpen = false
+            isArtworkLoading = true
             artworkLoaded = false
             viewModel.fetchArtwork(item.tmdbId ?: 0, item.status == "Movie") { images ->
                 artwork = images
+                isArtworkLoading = false
                 artworkLoaded = true
             }
             viewModel.fetchDiscoveryDetail(
@@ -1775,8 +1780,9 @@ fun BingeDashboardScreen(
                             Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text("Photos & Artwork", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
-                                    TextButton(onClick = { selectedArtworkCategory = categories.first().first }) { Text("Browse") }
+                                    TextButton(onClick = { isGalleryOpen = true }) { Text("Browse") }
                                 }
+                                if (isGalleryOpen) {
                                 if (selectedArtworkCategory == null) {
                                     categories.forEach { (category, images) ->
                                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1803,7 +1809,18 @@ fun BingeDashboardScreen(
                                         }
                                     }
                                 }
+                                } else {
+                                    OutlinedButton(onClick = { isGalleryOpen = true }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
+                                        Text("Photos & Artwork")
+                                    }
+                                }
                             }
+                        }
+                    } else if (isArtworkLoading) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Loading photos & artwork…", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     } else if (artworkLoaded) {
                         Text("No additional TMDB artwork available.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
