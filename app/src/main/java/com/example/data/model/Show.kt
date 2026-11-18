@@ -32,7 +32,8 @@ data class Show(
 data class SeasonInfo(
     val number: Int,
     val episodes: Int,
-    val episodeList: List<EpisodeInfo>? = null
+    val episodeList: List<EpisodeInfo>? = null,
+    val metadataFetched: Boolean = false
 )
 
 @JsonClass(generateAdapter = true)
