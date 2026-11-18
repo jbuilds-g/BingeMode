@@ -247,6 +247,7 @@ fun ShowChecklistScreen(
                                             model = show.poster,
                                             contentDescription = show.title,
                                             contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                            enableViewer = true,
                                             modifier = Modifier.fillMaxSize()
                                         )
                                     } else {
@@ -601,6 +602,7 @@ fun ShowChecklistScreen(
                                             model = show.poster,
                                             contentDescription = show.title,
                                             contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                            enableViewer = true,
                                             modifier = Modifier.fillMaxSize()
                                         )
                                     }
@@ -1218,6 +1220,7 @@ fun EpisodeProgressRow(
                             model = thumbnailUrl,
                             contentDescription = "Episode $episodeNum thumbnail",
                             contentScale = ContentScale.Crop,
+                            enableViewer = true,
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
