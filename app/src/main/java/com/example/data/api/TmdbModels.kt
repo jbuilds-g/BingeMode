@@ -66,7 +66,9 @@ data class TmdbSeasonDetailsResponse(
 data class TmdbEpisode(
     @Json(name = "episode_number") val episodeNumber: Int,
     val name: String,
-    val overview: String?
+    val overview: String?,
+    @Json(name = "runtime") val runtime: Int? = null,
+    @Json(name = "still_path") val stillPath: String? = null
 )
 
 @JsonClass(generateAdapter = true)
