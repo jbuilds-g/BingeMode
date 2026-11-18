@@ -586,6 +586,12 @@ fun SettingsScreen(
                                 Text("View Source", maxLines = 1)
                             }
                         }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            "This product uses the TMDB API but is not endorsed or certified by TMDB. Movie and TV artwork is provided by The Movie Database.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
