@@ -19,6 +19,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.*
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -824,6 +826,8 @@ fun ShowChecklistScreen(
                             episodeNum = epIndex,
                             title = epTitle,
                             overview = epOverview,
+                            runtime = epObj?.runtime,
+                            thumbnailUrl = epObj?.stillPath?.let { "https://image.tmdb.org/t/p/w300$it" },
                             isWatched = isWatched,
                             onClick = {
                                 viewModel.setWatchedEpisode(show.id, epIndex)
@@ -1137,6 +1141,8 @@ fun EpisodeProgressRow(
     episodeNum: Int,
     title: String,
     overview: String?,
+    runtime: Int? = null,
+    thumbnailUrl: String? = null,
     isWatched: Boolean,
     onClick: () -> Unit
 ) {
@@ -1150,6 +1156,7 @@ fun EpisodeProgressRow(
         },
         label = "epContainerColor"
     )
+    val runtimeLabel = com.jbuilds.bingemode.utils.RuntimeFormatter.format(runtime)
 
     Card(
         colors = CardDefaults.cardColors(containerColor = containerColor),
@@ -1161,21 +1168,20 @@ fun EpisodeProgressRow(
             .clip(RoundedCornerShape(16.dp))
             .clickable { onClick() }
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Checkbox status Box with minimum 48dp touch target
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(44.dp)
                         .clickable { onClick() },
                     contentAlignment = Alignment.Center
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(26.dp)
+                            .size(25.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .background(
                                 if (isWatched) MaterialTheme.colorScheme.primary
@@ -1199,8 +1205,32 @@ fun EpisodeProgressRow(
                     }
                 }
 
-                // Ep detailed Title text
-                Column(modifier = Modifier.weight(1f)) {
+                Box(
+                    modifier = Modifier
+                        .width(104.dp)
+                        .height(64.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (!thumbnailUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = thumbnailUrl,
+                            contentDescription = "Episode $episodeNum thumbnail",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Rounded.Movie,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(
                         text = "S$seasonNum E$episodeNum",
                         fontSize = 11.sp,
@@ -1212,19 +1242,25 @@ fun EpisodeProgressRow(
                         text = title,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp,
-                        color = if (isWatched) {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        },
-                        textDecoration = if (isWatched) TextDecoration.LineThrough else TextDecoration.None
+                        color = if (isWatched) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f) else MaterialTheme.colorScheme.onSurface,
+                        textDecoration = if (isWatched) TextDecoration.LineThrough else TextDecoration.None,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
+                    if (runtimeLabel != null) {
+                        Text(
+                            text = runtimeLabel,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
                 if (!overview.isNullOrBlank()) {
                     IconButton(
                         onClick = { expandedOverview = !expandedOverview },
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
                             imageVector = if (expandedOverview) Icons.Rounded.ExpandLess else Icons.Rounded.Info,
@@ -1243,7 +1279,7 @@ fun EpisodeProgressRow(
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(top = 10.dp, start = 48.dp, end = 8.dp)
+                        .padding(top = 10.dp, start = 56.dp, end = 8.dp)
                         .clip(RoundedCornerShape(10.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
                         .padding(10.dp)
