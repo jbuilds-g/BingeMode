@@ -111,3 +111,19 @@ data class TmdbMovieDetails(
     @Json(name = "release_date") val releaseDate: String? = null,
     val genres: List<TmdbGenre>? = null
 )
+
+
+@JsonClass(generateAdapter = true)
+data class TmdbImagesResponse(
+    val posters: List<TmdbImageItem> = emptyList(),
+    val backdrops: List<TmdbImageItem> = emptyList(),
+    val logos: List<TmdbImageItem> = emptyList()
+)
+
+@JsonClass(generateAdapter = true)
+data class TmdbImageItem(
+    @Json(name = "file_path") val filePath: String,
+    @Json(name = "iso_639_1") val language: String? = null,
+    val width: Int? = null,
+    val height: Int? = null
+)
