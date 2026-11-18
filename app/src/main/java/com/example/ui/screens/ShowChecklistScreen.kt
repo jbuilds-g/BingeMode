@@ -243,7 +243,7 @@ fun ShowChecklistScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (show.poster != null) {
-                                        coil.compose.MediaImage(
+                                        MediaImage(
                                             model = show.poster,
                                             contentDescription = show.title,
                                             contentScale = androidx.compose.ui.layout.ContentScale.Crop,
@@ -597,7 +597,7 @@ fun ShowChecklistScreen(
                                             .height(150.dp)
                                             .clip(RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp))
                                     ) {
-                                        coil.compose.MediaImage(
+                                        MediaImage(
                                             model = show.poster,
                                             contentDescription = show.title,
                                             contentScale = androidx.compose.ui.layout.ContentScale.Crop,
