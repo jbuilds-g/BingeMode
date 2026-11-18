@@ -1522,7 +1522,8 @@ fun BingeDashboardScreen(
         val item = selectedDiscoveryItem!!
         var detailState by remember { mutableStateOf<com.jbuilds.bingemode.data.repository.DiscoveryDetail?>(null) }
         var isDetailLoading by remember { mutableStateOf(false) }
-        var artwork by remember { mutableStateOf<List<String>>(emptyList()) }
+        var artwork by remember { mutableStateOf<com.jbuilds.bingemode.data.api.ArtworkGallery?>(null) }
+        var selectedArtworkCategory by remember { mutableStateOf<String?>(null) }
         var artworkLoaded by remember { mutableStateOf(false) }
         val detailHeaderProgress by androidx.compose.animation.core.animateFloatAsState(
             targetValue = if (isDetailLoading) 0f else 1f,
@@ -1536,7 +1537,8 @@ fun BingeDashboardScreen(
         LaunchedEffect(selectedDiscoveryItem) {
             isDetailLoading = true
             detailState = null
-            artwork = emptyList()
+            artwork = null
+            selectedArtworkCategory = null
             artworkLoaded = false
             viewModel.fetchArtwork(item.tmdbId ?: 0, item.status == "Movie") { images ->
                 artwork = images
@@ -1607,6 +1609,7 @@ fun BingeDashboardScreen(
                                     model = posterUrl,
                                     contentDescription = item.title,
                                     contentScale = ContentScale.Crop,
+                                    enableViewer = true,
                                     modifier = Modifier.fillMaxSize()
                                 )
                             } else {
@@ -1758,25 +1761,47 @@ fun BingeDashboardScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    if (artwork.isNotEmpty()) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Text("TMDB Photos & Artwork", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
-                            LazyVerticalGrid(
-                                columns = GridCells.Adaptive(minSize = 104.dp),
-                                modifier = Modifier.fillMaxWidth().heightIn(max = 420.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                items(artwork) { imageUrl ->
-                                    MediaImage(
-                                        model = imageUrl,
-                                        contentDescription = "TMDB artwork for ${item.title}",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.fillMaxWidth().aspectRatio(0.72f).clip(RoundedCornerShape(10.dp))
-                                    )
+                    val gallery = artwork
+                    if (gallery != null) {
+                        val categories = listOf(
+                            "Posters" to gallery.posters,
+                            "Backdrops" to gallery.backdrops,
+                            "Logos" to gallery.logos,
+                            "Photos & Media" to gallery.stills
+                        ).filter { it.second.isNotEmpty() }
+                        if (categories.isEmpty()) {
+                            Text("No additional TMDB artwork available.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        } else {
+                            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text("Photos & Artwork", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
+                                    TextButton(onClick = { selectedArtworkCategory = categories.first().first }) { Text("Browse") }
+                                }
+                                if (selectedArtworkCategory == null) {
+                                    categories.forEach { (category, images) ->
+                                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                                                Text(category, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                                TextButton(onClick = { selectedArtworkCategory = category }) { Text("View All") }
+                                            }
+                                            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                                items(images.take(8)) { imageUrl ->
+                                                    MediaImage(model = imageUrl, contentDescription = category + " for " + item.title, contentScale = ContentScale.Crop, enableViewer = true, modifier = Modifier.width(112.dp).aspectRatio(if (category == "Backdrops" || category == "Photos & Media") 1.6f else 0.72f).clip(RoundedCornerShape(10.dp)))
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    val selectedImages = categories.firstOrNull { it.first == selectedArtworkCategory }?.second.orEmpty()
+                                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                                        Text(selectedArtworkCategory!!, fontWeight = FontWeight.SemiBold)
+                                        TextButton(onClick = { selectedArtworkCategory = null }) { Text("Back") }
+                                    }
+                                    LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 104.dp), modifier = Modifier.fillMaxWidth().heightIn(max = 520.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        items(selectedImages.distinct()) { imageUrl ->
+                                            MediaImage(model = imageUrl, contentDescription = selectedArtworkCategory + " for " + item.title, contentScale = ContentScale.Crop, enableViewer = true, modifier = Modifier.fillMaxWidth().aspectRatio(if (selectedArtworkCategory == "Backdrops" || selectedArtworkCategory == "Photos & Media") 1.6f else 0.72f).clip(RoundedCornerShape(10.dp)))
+                                        }
+                                    }
                                 }
                             }
                         }
