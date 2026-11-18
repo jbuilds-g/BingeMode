@@ -447,7 +447,7 @@ class BingeRepository(context: Context) {
                     rating = 8.0,
                     dateOrSeason = "Coming Soon",
                     genres = listOf("Trending", "Movie"),
-                    runtimeOrEpisodes = "TBD min",
+                    runtimeOrEpisodes = "TBD",
                     poster = null,
                     isMovie = true
                 )
