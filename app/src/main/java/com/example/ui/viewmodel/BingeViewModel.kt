@@ -899,15 +899,12 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                 // 2. Fetch missing Episode Names for current active season
                 val currentSeasonObj = updatedSeasonData.find { s -> s.number == initialShow.season }
                 if (currentSeasonObj != null && (
-                    currentSeasonObj.episodeList.isNullOrEmpty() ||
-                    currentSeasonObj.episodeList.any { episode ->
-                        episode.runtime == null || episode.stillPath.isNullOrBlank()
-                    }
+                    !currentSeasonObj.metadataFetched
                 )) {
                     val epList = repository.getSeasonEpisodes(tmdbId, initialShow.season)
                     if (epList != null) {
                         updatedSeasonData = updatedSeasonData.map { s ->
-                            if (s.number == initialShow.season) s.copy(episodeList = epList) else s
+                            if (s.number == initialShow.season) s.copy(episodeList = epList, metadataFetched = true) else s
                         }
                         needsSave = true
                     }
@@ -986,16 +983,13 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
             if (tmdbId != null && _tmdbApiKey.value.isNotBlank()) {
                 val seasonObj = updatedShow.seasonData.find { s -> s.number == targetSeasonNum }
                 if (seasonObj != null && (
-                    seasonObj.episodeList.isNullOrEmpty() ||
-                    seasonObj.episodeList.any { episode ->
-                        episode.runtime == null || episode.stillPath.isNullOrBlank()
-                    }
+                    !seasonObj.metadataFetched
                 )) {
                     val epList = repository.getSeasonEpisodes(tmdbId, targetSeasonNum)
                     if (epList != null) {
                         val updatedSeasons = updatedShow.seasonData.map { s ->
                             if (s.number == targetSeasonNum) {
-                                s.copy(episodeList = epList)
+                                s.copy(episodeList = epList, metadataFetched = true)
                             } else s
                         }
                         updatedShow = updatedShow.copy(seasonData = updatedSeasons)
@@ -1042,16 +1036,13 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
             if (tmdbId != null && _tmdbApiKey.value.isNotBlank()) {
                 val nextSeasonObj = updatedShow.seasonData.find { s -> s.number == nextSeasonNum }
                 if (nextSeasonObj != null && (
-                    nextSeasonObj.episodeList.isNullOrEmpty() ||
-                    nextSeasonObj.episodeList.any { episode ->
-                        episode.runtime == null || episode.stillPath.isNullOrBlank()
-                    }
+                    !nextSeasonObj.metadataFetched
                 )) {
                     val epList = repository.getSeasonEpisodes(tmdbId, nextSeasonNum)
                     if (epList != null) {
                         val fetchedSeasons = updatedShow.seasonData.map { s ->
                             if (s.number == nextSeasonNum) {
-                                s.copy(episodeList = epList, episodes = maxOf(s.episodes, epList.size))
+                                s.copy(episodeList = epList, episodes = maxOf(s.episodes, epList.size), metadataFetched = true)
                             } else s
                         }
                         updatedShow = updatedShow.copy(seasonData = fetchedSeasons)
