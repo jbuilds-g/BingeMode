@@ -119,7 +119,7 @@ fun MediaImage(
                             contentScale = ContentScale.Fit,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .transformable(transformState)
+                                .transformable(transformState, canPan = { scale > 1f })
                                 .graphicsLayer {
                                     scaleX = scale
                                     scaleY = scale
