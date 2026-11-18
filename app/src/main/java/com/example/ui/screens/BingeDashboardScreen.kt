@@ -74,7 +74,8 @@ fun BingeDashboardScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToChecklist: (showId: Int) -> Unit,
     onNavigateToSectionGrid: (sectionId: String) -> Unit,
-    onNavigateToThemeAppearance: () -> Unit
+    onNavigateToThemeAppearance: () -> Unit,
+    onNavigateToArtworkGallery: (Show) -> Unit
 ) {
     val shows by viewModel.trackedShows.collectAsState()
     var showDeleteConfirmDialogForId by remember { mutableStateOf<Int?>(null) }
@@ -1522,11 +1523,6 @@ fun BingeDashboardScreen(
         val item = selectedDiscoveryItem!!
         var detailState by remember { mutableStateOf<com.jbuilds.bingemode.data.repository.DiscoveryDetail?>(null) }
         var isDetailLoading by remember { mutableStateOf(false) }
-        var artwork by remember { mutableStateOf<com.jbuilds.bingemode.data.api.ArtworkGallery?>(null) }
-        var selectedArtworkCategory by remember { mutableStateOf<String?>(null) }
-        var isGalleryOpen by remember { mutableStateOf(false) }
-        var isArtworkLoading by remember { mutableStateOf(true) }
-        var artworkLoaded by remember { mutableStateOf(false) }
         val detailHeaderProgress by androidx.compose.animation.core.animateFloatAsState(
             targetValue = if (isDetailLoading) 0f else 1f,
             animationSpec = androidx.compose.animation.core.tween(
@@ -1539,16 +1535,6 @@ fun BingeDashboardScreen(
         LaunchedEffect(selectedDiscoveryItem) {
             isDetailLoading = true
             detailState = null
-            artwork = null
-            selectedArtworkCategory = null
-            isGalleryOpen = false
-            isArtworkLoading = true
-            artworkLoaded = false
-            viewModel.fetchArtwork(item.tmdbId ?: 0, item.status == "Movie") { images ->
-                artwork = images
-                isArtworkLoading = false
-                artworkLoaded = true
-            }
             viewModel.fetchDiscoveryDetail(
                 tmdbId = item.tmdbId ?: 0,
                 isMovie = item.status == "Movie"
@@ -1766,63 +1752,15 @@ fun BingeDashboardScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    val gallery = artwork
-                    if (gallery != null) {
-                        val categories = listOf(
-                            "Posters" to gallery.posters,
-                            "Backdrops" to gallery.backdrops,
-                            "Logos" to gallery.logos,
-                            "Photos & Media" to gallery.stills
-                        ).filter { it.second.isNotEmpty() }
-                        if (categories.isEmpty()) {
-                            Text("No additional TMDB artwork available.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        } else {
-                            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                                if (isGalleryOpen) {
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                                    TextButton(onClick = { isGalleryOpen = false; selectedArtworkCategory = null }) { Text("Back to Info") }
-                                }
-                                if (selectedArtworkCategory == null) {
-                                    categories.forEach { (category, images) ->
-                                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                                                Text(category, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                                TextButton(onClick = { selectedArtworkCategory = category }) { Text("View All") }
-                                            }
-                                            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                                items(images.take(8)) { imageUrl ->
-                                                    MediaImage(model = imageUrl, contentDescription = category + " for " + item.title, contentScale = ContentScale.Crop, enableViewer = true, modifier = Modifier.width(112.dp).aspectRatio(if (category == "Backdrops" || category == "Photos & Media") 1.6f else 0.72f).clip(RoundedCornerShape(10.dp)))
-                                                }
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    val selectedImages = categories.firstOrNull { it.first == selectedArtworkCategory }?.second.orEmpty()
-                                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                                        Text(selectedArtworkCategory!!, fontWeight = FontWeight.SemiBold)
-                                        TextButton(onClick = { selectedArtworkCategory = null }) { Text("Back to Categories") }
-                                    }
-                                    LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 104.dp), modifier = Modifier.fillMaxWidth().heightIn(max = 520.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        items(selectedImages.distinct()) { imageUrl ->
-                                            MediaImage(model = imageUrl, contentDescription = selectedArtworkCategory + " for " + item.title, contentScale = ContentScale.Crop, enableViewer = true, modifier = Modifier.fillMaxWidth().aspectRatio(if (selectedArtworkCategory == "Backdrops" || selectedArtworkCategory == "Photos & Media") 1.6f else 0.72f).clip(RoundedCornerShape(10.dp)))
-                                        }
-                                    }
-                                }
-                                } else {
-                                    OutlinedButton(onClick = { isGalleryOpen = true }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
-                                        Text("Photos & Artwork")
-                                    }
-                                }
-                            }
-                        }
-                    } else if (isArtworkLoading) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Loading photos & artwork…", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    } else if (artworkLoaded) {
-                        Text("No additional TMDB artwork available.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    OutlinedButton(
+                        onClick = {
+                            selectedDiscoveryItem = null
+                            onNavigateToArtworkGallery(item)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Photos & Artwork")
                     }
 
                     Button(
