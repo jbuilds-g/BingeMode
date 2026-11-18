@@ -33,7 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import com.jbuilds.bingemode.ui.components.MediaImage
 import com.jbuilds.bingemode.data.model.Show
 import com.jbuilds.bingemode.ui.viewmodel.BingeViewModel
 import kotlinx.coroutines.launch
@@ -260,7 +260,7 @@ fun SectionGridScreen(
                         ) {
                             val posterUrl = detailState?.poster ?: item.poster
                             if (posterUrl != null) {
-                                AsyncImage(
+                                MediaImage(
                                     model = posterUrl,
                                     contentDescription = item.title,
                                     contentScale = ContentScale.Crop,
@@ -472,7 +472,7 @@ fun GridDiscoveryCard(
             ) {
                 if (item.poster != null) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        AsyncImage(
+                        MediaImage(
                             model = item.poster,
                             contentDescription = item.title,
                             contentScale = ContentScale.Crop,
