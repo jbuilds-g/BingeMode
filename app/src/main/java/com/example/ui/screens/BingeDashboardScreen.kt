@@ -1608,7 +1608,7 @@ fun BingeDashboardScreen(
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(MaterialTheme.colorScheme.surfaceVariant)
                         ) {
-                            val posterUrl = detailState?.poster ?: item.poster
+                            val posterUrl = detailState?.poster ?: item.poster?.replace("/w500/", "/original/")
                             if (posterUrl != null) {
                                 MediaImage(
                                     model = posterUrl,
@@ -1779,6 +1779,9 @@ fun BingeDashboardScreen(
                         } else {
                             Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                                 if (isGalleryOpen) {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                                    TextButton(onClick = { isGalleryOpen = false; selectedArtworkCategory = null }) { Text("Back to Info") }
+                                }
                                 if (selectedArtworkCategory == null) {
                                     categories.forEach { (category, images) ->
                                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1797,7 +1800,7 @@ fun BingeDashboardScreen(
                                     val selectedImages = categories.firstOrNull { it.first == selectedArtworkCategory }?.second.orEmpty()
                                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                                         Text(selectedArtworkCategory!!, fontWeight = FontWeight.SemiBold)
-                                        TextButton(onClick = { selectedArtworkCategory = null }) { Text("Back") }
+                                        TextButton(onClick = { selectedArtworkCategory = null }) { Text("Back to Categories") }
                                     }
                                     LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 104.dp), modifier = Modifier.fillMaxWidth().heightIn(max = 520.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                         items(selectedImages.distinct()) { imageUrl ->
