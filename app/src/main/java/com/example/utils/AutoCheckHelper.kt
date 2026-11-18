@@ -405,7 +405,7 @@ object AutoCheckHelper {
                     if (fetchedEpisodes != null) {
                         maxEpsInCurSeason = fetchedEpisodes.size
                         seasonsList = seasonsList.map { s ->
-                            if (s.number == curSeason) s.copy(episodes = fetchedEpisodes.size, episodeList = fetchedEpisodes) else s
+                            if (s.number == curSeason) s.copy(episodes = fetchedEpisodes.size, episodeList = fetchedEpisodes, metadataFetched = true) else s
                         }
                     }
                 }
@@ -444,7 +444,7 @@ object AutoCheckHelper {
                                 val epList = repository.getSeasonEpisodes(tmdbId, nextSeasonNum)
                                 if (epList != null) {
                                     seasonsList = seasonsList.map { s ->
-                                        if (s.number == nextSeasonNum) s.copy(episodeList = epList) else s
+                                        if (s.number == nextSeasonNum) s.copy(episodeList = epList, metadataFetched = true) else s
                                     }
                                 }
                             } catch (e: Exception) {
