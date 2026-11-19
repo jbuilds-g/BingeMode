@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -154,7 +155,11 @@ fun AddShowScreen(
                         Text(
                             text = "Create a custom offline entry with precise seasons, episodes, cover art, and ratings.",
                             fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            color = if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
+                                Color.White
+                            } else {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            },
                             lineHeight = 16.sp
                         )
                     }
@@ -162,7 +167,7 @@ fun AddShowScreen(
 
                 // Title Input
                 Text(
-                    text = "SERIES IDENTITY",
+                    text = "Series identity",
                     fontWeight = FontWeight.Bold,
                     fontSize = 11.sp,
                     letterSpacing = 1.5.sp,
@@ -187,7 +192,7 @@ fun AddShowScreen(
 
                 // Poster & Cover Art Upload Box
                 Text(
-                    text = "COVER ARTWORK",
+                    text = "Cover artwork",
                     fontWeight = FontWeight.Bold,
                     fontSize = 11.sp,
                     letterSpacing = 1.5.sp,
@@ -293,7 +298,7 @@ fun AddShowScreen(
 
                 // Show Details (Status and Rating)
                 Text(
-                    text = "CLASSIFICATION & SCORE",
+                    text = "Classification & score",
                     fontWeight = FontWeight.Bold,
                     fontSize = 11.sp,
                     letterSpacing = 1.5.sp,
@@ -381,7 +386,7 @@ fun AddShowScreen(
 
                 // Seasons Expansion & Stepper
                 Text(
-                    text = "SEASONS & EPISODES STRUCTURE",
+                    text = "Seasons & episodes structure",
                     fontWeight = FontWeight.Bold,
                     fontSize = 11.sp,
                     letterSpacing = 1.5.sp,
