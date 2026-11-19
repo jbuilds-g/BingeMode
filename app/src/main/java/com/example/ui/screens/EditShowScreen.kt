@@ -104,7 +104,7 @@ fun EditShowScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        text = "CUSTOMIZE PARAMETERS",
+                        text = "Customize parameters",
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 12.sp,
