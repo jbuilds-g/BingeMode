@@ -57,7 +57,6 @@ fun ThemeAndAppearanceScreen(
     val use24HourClock by viewModel.use24HourClock.collectAsState()
     val elementBorders by viewModel.elementBorders.collectAsState()
     val hideNavLabels by viewModel.hideNavLabels.collectAsState()
-    val context = androidx.compose.ui.platform.LocalContext.current
 
     var isVisualStylesExpanded by remember { mutableStateOf(true) }
     var isTimeManagementExpanded by remember { mutableStateOf(true) }
@@ -121,7 +120,7 @@ fun ThemeAndAppearanceScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "THEME & APPEARANCE",
+                        text = "Theme & appearance",
                         fontWeight = FontWeight.Black,
                         fontSize = 18.sp,
                         letterSpacing = 1.5.sp,
@@ -767,43 +766,6 @@ fun ThemeAndAppearanceScreen(
                                 }
                             }
                             
-                            // [DEVELOPER TESTING] Simulate Auto-Check Automation
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "[DEVELOPER TESTING]",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(top = 8.dp)
-                            )
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(MaterialTheme.colorScheme.surface)
-                                    .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-                                    .clickable {
-                                        viewModel.simulateAutoCheck(context)
-                                    }
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "\uD83E\uDDEA Simulate Auto-Check Automation",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 15.sp,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        text = "Tap to instantly trigger the 60-second notification intercept and queue the in-app safety banner for testing purposes.",
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        lineHeight = 16.sp
-                                    )
-                                }
-                            }
                         }
                     }
                 }
