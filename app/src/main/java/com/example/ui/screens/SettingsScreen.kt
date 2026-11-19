@@ -126,7 +126,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "SETTINGS",
+                        text = "Settings",
                         fontWeight = FontWeight.Black,
                         fontSize = 18.sp,
                         letterSpacing = 1.5.sp,
@@ -380,7 +380,7 @@ fun SettingsScreen(
                             // EXPORT SECTION
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                             Text(
-                                text = "EXPORT DIRECTORY",
+                                text = "Export directory",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 11.sp,
                                 letterSpacing = 1.sp,
@@ -445,7 +445,7 @@ fun SettingsScreen(
                             // RESTORE SECTION
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                             Text(
-                                text = "RESTORE DIRECTORY",
+                                text = "Restore directory",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 11.sp,
                                 letterSpacing = 1.sp,
