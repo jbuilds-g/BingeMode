@@ -142,7 +142,7 @@ fun BingeDashboardScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .padding(bottom = 16.dp, start = 16.dp, end = 16.dp),
+                    .padding(bottom = 16.dp, start = 12.dp, end = 12.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -152,7 +152,7 @@ fun BingeDashboardScreen(
                 val activeContentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 val inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant
 
-                // 1. Navigation Pill Container (Discover, Library, Settings)
+                // Navigation pill expands to use the available width.
                 Surface(
                     shape = CircleShape,
                     color = navContainerColor,
@@ -162,13 +162,16 @@ fun BingeDashboardScreen(
                         1.dp,
                         MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
                     ),
-                    modifier = Modifier.height(54.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(64.dp)
                 ) {
                     Row(
                         modifier = Modifier
-                            .padding(horizontal = 6.dp, vertical = 5.dp),
+                            .fillMaxSize()
+                            .padding(horizontal = 8.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         val navItems = listOf(
                             Triple(0, Icons.Rounded.Explore, "Discover"),
@@ -176,9 +179,8 @@ fun BingeDashboardScreen(
                             Triple(2, Icons.Rounded.Settings, "Settings")
                         )
                         navItems.forEach { (tabIndex, icon, label) ->
-                            val isSelected = activeTab == tabIndex
                             ExpressivePillNavItem(
-                                selected = isSelected,
+                                selected = activeTab == tabIndex,
                                 icon = icon,
                                 label = label,
                                 hideNavLabels = hideNavLabels,
@@ -204,7 +206,7 @@ fun BingeDashboardScreen(
                         MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
                     ),
                     modifier = Modifier
-                        .size(54.dp)
+                        .size(60.dp)
                         .clip(CircleShape)
                         .clickable {
                             onNavigateToAddShow()
@@ -218,7 +220,7 @@ fun BingeDashboardScreen(
                             imageVector = Icons.Rounded.Add,
                             contentDescription = "Add Show",
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(26.dp)
                         )
                     }
                 }
@@ -385,7 +387,7 @@ fun BingeDashboardScreen(
                                         }
                                         Column {
                                             Text(
-                                                text = "LIBRARY OVERVIEW",
+                                                text = "Library overview",
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 12.sp,
                                                 letterSpacing = 0.5.sp,
@@ -965,7 +967,7 @@ fun BingeDashboardScreen(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(
-                                    text = "FEATURED SPOTLIGHT",
+                                    text = "Featured spotlight",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 11.sp,
                                     letterSpacing = 1.5.sp,
@@ -1019,7 +1021,7 @@ fun BingeDashboardScreen(
                                                     .padding(horizontal = 8.dp, vertical = 2.dp)
                                             ) {
                                                 Text(
-                                                    text = "POPULAR NOW",
+                                                    text = "Popular now",
                                                     style = MaterialTheme.typography.labelSmall.copy(
                                                         fontWeight = FontWeight.Bold,
                                                         letterSpacing = 0.5.sp,
@@ -1414,7 +1416,7 @@ fun BingeDashboardScreen(
                     } else if (searchQuery.isNotBlank()) {
                         // Real-time Search Results Grid
                         Text(
-                            text = "RESULTS (${searchResults.size})",
+                            text = "Results (${searchResults.size})",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.sp,
@@ -1448,7 +1450,7 @@ fun BingeDashboardScreen(
                     } else {
                         // Default Trending Suggestions when search bar is idle
                         Text(
-                            text = "TRENDING SUGGESTIONS",
+                            text = "Trending suggestions",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.sp,
@@ -2254,7 +2256,8 @@ fun ExpressivePillNavItem(
 
     Box(
         modifier = Modifier
-            .height(44.dp)
+            .height(52.dp)
+            .widthIn(min = 56.dp)
             .clip(CircleShape)
             .background(containerColor)
             .clickable(onClick = onClick)
@@ -2269,7 +2272,7 @@ fun ExpressivePillNavItem(
                 imageVector = icon,
                 contentDescription = label,
                 tint = contentColor,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(22.dp)
             )
             androidx.compose.animation.AnimatedVisibility(
                 visible = selected && !hideNavLabels,
@@ -2291,8 +2294,8 @@ fun ExpressivePillNavItem(
                         text = label,
                         color = contentColor,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        letterSpacing = 0.2.sp,
+                        fontSize = 14.sp,
+                        letterSpacing = 0.1.sp,
                         maxLines = 1
                     )
                 }
