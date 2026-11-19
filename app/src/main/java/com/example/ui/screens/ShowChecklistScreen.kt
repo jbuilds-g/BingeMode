@@ -358,7 +358,7 @@ fun ShowChecklistScreen(
                         ) {
                             Column(modifier = Modifier.padding(18.dp)) {
                                 Text(
-                                    text = "PERSONAL CRITIQUE SCORE",
+                                    text = "Personal critique score",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary,
@@ -454,7 +454,7 @@ fun ShowChecklistScreen(
                         ) {
                             Column(modifier = Modifier.padding(18.dp)) {
                                 Text(
-                                    text = "CINEMATIC EXTRA CHECKLIST",
+                                    text = "Cinematic extra checklist",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -687,7 +687,7 @@ fun ShowChecklistScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "SEASONS",
+                                    text = "Seasons",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 11.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -809,7 +809,7 @@ fun ShowChecklistScreen(
 
                     item {
                         Text(
-                            text = "EPISODES",
+                            text = "Episodes",
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1513,7 +1513,7 @@ fun AutoCheckConfigCard(
                                 )
                                 Column {
                                     Text(
-                                        text = "UPCOMING TRIGGER",
+                                        text = "Upcoming trigger",
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
                                         letterSpacing = 0.8.sp,
@@ -1533,7 +1533,7 @@ fun AutoCheckConfigCard(
                     // Schedule Quick Presets
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(
-                            text = "PRESETS",
+                            text = "Presets",
                             fontWeight = FontWeight.Bold,
                             fontSize = 10.sp,
                             color = MaterialTheme.colorScheme.primary,
@@ -1575,7 +1575,7 @@ fun AutoCheckConfigCard(
                     // Trigger Days Selector
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(
-                            text = "CUSTOM DAYS",
+                            text = "Custom days",
                             fontWeight = FontWeight.Bold,
                             fontSize = 10.sp,
                             color = MaterialTheme.colorScheme.primary,
@@ -1639,7 +1639,7 @@ fun AutoCheckConfigCard(
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
-                                text = "TRIGGER TIME",
+                                text = "Trigger time",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1689,7 +1689,7 @@ fun AutoCheckConfigCard(
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
-                                text = "EPISODES TO MARK",
+                                text = "Episodes to mark",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
