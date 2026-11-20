@@ -324,11 +324,11 @@ class BingeRepository(context: Context) {
     }
 
     // TMDB genre discovery across movies and TV.
-    suspend fun getGenreDiscoveries(genreId: Int, page: Int = 1): List<Show> {
+    suspend fun getGenreDiscoveries(movieGenreId: Int, tvGenreId: Int, page: Int = 1): List<Show> {
         val apiKey = getSetting("tmdb_key") ?: return emptyList()
         if (apiKey.isBlank()) return emptyList()
         return try {
-            val movies = tmdbService.discoverMoviesByGenre(apiKey, genreId, page).results.mapNotNull { item ->
+            val movies = tmdbService.discoverMoviesByGenre(apiKey, movieGenreId, page).results.mapNotNull { item ->
                 val title = item.title ?: return@mapNotNull null
                 Show(
                     title = title,
@@ -342,7 +342,7 @@ class BingeRepository(context: Context) {
                     updated = System.currentTimeMillis()
                 )
             }
-            val tv = tmdbService.discoverTvByGenre(apiKey, genreId, page).results.mapNotNull { item ->
+            val tv = tmdbService.discoverTvByGenre(apiKey, tvGenreId, page).results.mapNotNull { item ->
                 val title = item.name ?: return@mapNotNull null
                 Show(
                     title = title,
