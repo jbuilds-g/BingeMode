@@ -169,9 +169,9 @@ fun BingeDashboardScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                            .padding(horizontal = 4.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         val navItems = listOf(
                             Triple(0, Icons.Rounded.Explore, "Discover"),
