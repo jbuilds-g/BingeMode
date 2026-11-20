@@ -1068,8 +1068,12 @@ fun BingeDashboardScreen(
                             Triple("Drama", 18, 18),
                             Triple("Family", 10751, 10751),
                             Triple("Fantasy", 14, 10765),
+                            Triple("Horror", 27, 0),
+                            Triple("Music", 10402, 0),
                             Triple("Mystery", 9648, 9648),
+                            Triple("Romance", 10749, 0),
                             Triple("Science Fiction", 878, 10765),
+                            Triple("Thriller", 53, 0),
                             Triple("War", 10752, 10768),
                             Triple("Western", 37, 37)
                         )
