@@ -57,14 +57,14 @@ fun SectionGridScreen(
         "top_rated_tv" -> "Highly Rated Series"
         "popular_tv" -> "Popular Series Right Now"
         else -> {
-            val genreId = sectionId.removePrefix("genre_").toIntOrNull()
+            val genreIds = sectionId.removePrefix("genre_").split("_").mapNotNull { it.toIntOrNull() }
             val genreName = mapOf(
-                28 to "Action", 12 to "Adventure", 16 to "Animation", 35 to "Comedy",
-                80 to "Crime", 99 to "Documentary", 18 to "Drama", 10751 to "Family",
-                14 to "Fantasy", 36 to "History", 27 to "Horror", 10402 to "Music",
-                9648 to "Mystery", 10749 to "Romance", 878 to "Science Fiction",
-                53 to "Thriller", 10752 to "War", 37 to "Western"
-            )[genreId]
+                "28_10759" to "Action", "12_10759" to "Adventure", "16_16" to "Animation",
+                "35_35" to "Comedy", "80_80" to "Crime", "99_99" to "Documentary",
+                "18_18" to "Drama", "10751_10751" to "Family", "14_10765" to "Fantasy",
+                "9648_9648" to "Mystery", "878_10765" to "Science Fiction",
+                "10752_10768" to "War", "37_37" to "Western"
+            )[genreIds.joinToString("_")]
             if (genreName != null) genreName else "Discover Feed"
         }
     }
