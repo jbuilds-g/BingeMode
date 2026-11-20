@@ -114,6 +114,22 @@ data class TmdbMovieDetails(
 
 
 @JsonClass(generateAdapter = true)
+data class TmdbDiscoverResponse(
+    val results: List<TmdbDiscoverItem>
+)
+
+@JsonClass(generateAdapter = true)
+data class TmdbDiscoverItem(
+    val id: Int,
+    val title: String? = null,
+    val name: String? = null,
+    @Json(name = "poster_path") val posterPath: String? = null,
+    @Json(name = "vote_average") val voteAverage: Double? = null,
+    @Json(name = "release_date") val releaseDate: String? = null,
+    @Json(name = "first_air_date") val firstAirDate: String? = null
+)
+
+@JsonClass(generateAdapter = true)
 data class TmdbImagesResponse(
     val posters: List<TmdbImageItem> = emptyList(),
     val backdrops: List<TmdbImageItem> = emptyList(),
