@@ -16,6 +16,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ModalBottomSheet
@@ -761,10 +764,42 @@ fun BingeDashboardScreen(
                 val searchResults by viewModel.searchResults.collectAsState()
                 val isSearching by viewModel.isSearching.collectAsState()
  
+                val discoveryScrollState = rememberScrollState()
+                val discoveryScope = rememberCoroutineScope()
+                val genreSectionOffsets = remember { mutableStateMapOf<String, Int>() }
+                val discoveryGenres = remember {
+                    listOf(
+                        Triple("Action", 28, 10759),
+                        Triple("Adventure", 12, 10759),
+                        Triple("Animation", 16, 16),
+                        Triple("Comedy", 35, 35),
+                        Triple("Crime", 80, 80),
+                        Triple("Documentary", 99, 99),
+                        Triple("Drama", 18, 18),
+                        Triple("Family", 10751, 10751),
+                        Triple("Fantasy", 14, 10765),
+                        Triple("Mystery", 9648, 9648),
+                        Triple("Science Fiction", 878, 10765),
+                        Triple("War", 10752, 10768),
+                        Triple("Western", 37, 37)
+                    )
+                }
+                val genreResults = remember { mutableStateMapOf<String, List<Show>>() }
+                LaunchedEffect(apiKey) {
+                    if (apiKey.isNotBlank()) {
+                        discoveryGenres.forEach { (_, movieGenreId, tvGenreId) ->
+                            val key = "${movieGenreId}_${tvGenreId}"
+                            if (key !in genreResults) {
+                                genreResults[key] = viewModel.fetchSectionPage("genre_${key}", 1)
+                            }
+                        }
+                    }
+                }
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(discoveryScrollState)
                         .padding(bottom = 32.dp),
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
@@ -1058,25 +1093,6 @@ fun BingeDashboardScreen(
                         }
  
                         // Genre browsing
-                        val discoveryGenres = listOf(
-                            Triple("Action", 28, 10759),
-                            Triple("Adventure", 12, 10759),
-                            Triple("Animation", 16, 16),
-                            Triple("Comedy", 35, 35),
-                            Triple("Crime", 80, 80),
-                            Triple("Documentary", 99, 99),
-                            Triple("Drama", 18, 18),
-                            Triple("Family", 10751, 10751),
-                            Triple("Fantasy", 14, 10765),
-                            Triple("Horror", 27, 0),
-                            Triple("Music", 10402, 0),
-                            Triple("Mystery", 9648, 9648),
-                            Triple("Romance", 10749, 0),
-                            Triple("Science Fiction", 878, 10765),
-                            Triple("Thriller", 53, 0),
-                            Triple("War", 10752, 10768),
-                            Triple("Western", 37, 37)
-                        )
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             Text(
                                 text = "Browse by genre",
@@ -1092,7 +1108,11 @@ fun BingeDashboardScreen(
                             ) {
                                 items(discoveryGenres) { (genreName, movieGenreId, tvGenreId) ->
                                     SuggestionChip(
-                                        onClick = { onNavigateToSectionGrid("genre_${movieGenreId}_${tvGenreId}") },
+                                        onClick = {
+                                            genreSectionOffsets["${movieGenreId}_${tvGenreId}"]?.let { offset ->
+                                                discoveryScope.launch { discoveryScrollState.animateScrollTo(offset) }
+                                            }
+                                        },
                                         label = { Text(genreName) },
                                         shape = CircleShape
                                     )
@@ -1286,6 +1306,76 @@ fun BingeDashboardScreen(
                                     }
                                     item {
                                         PullToViewAllItem { onNavigateToSectionGrid("top_rated_tv") }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Dedicated genre sections
+                        discoveryGenres.forEach { (genreName, movieGenreId, tvGenreId) ->
+                            val genreKey = "${movieGenreId}_${tvGenreId}"
+                            val results = genreResults[genreKey].orEmpty()
+                            val movieResults = results.filter { it.mediaType.equals("movie", true) }
+                            val tvResults = results.filter { it.mediaType.equals("tv", true) }
+
+                            Column(
+                                modifier = Modifier.onGloballyPositioned { coordinates ->
+                                    genreSectionOffsets[genreKey] =
+                                        (coordinates.positionInRoot().y + discoveryScrollState.value).toInt()
+                                },
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Text(
+                                    text = "$genreName Movies",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 17.sp,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                                if (movieResults.isEmpty()) {
+                                    Text(
+                                        text = if (apiKey.isBlank()) "Add a TMDB API key to browse genres." else "No movies found.",
+                                        fontSize = 14.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                } else {
+                                    LazyRow(
+                                        contentPadding = PaddingValues(horizontal = 16.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        items(movieResults, key = { "movie_${it.tmdbId ?: it.id}" }) { item ->
+                                            DiscoveryCard(item = item) { selectedDiscoveryItem = item }
+                                        }
+                                        item { PullToViewAllItem { onNavigateToSectionGrid("genre_${movieGenreId}_${tvGenreId}") } }
+                                    }
+                                }
+
+                                Text(
+                                    text = "$genreName TV Shows",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 17.sp,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                                if (tvResults.isEmpty()) {
+                                    Text(
+                                        text = if (apiKey.isBlank()) "Add a TMDB API key to browse genres." else "No TV shows found.",
+                                        fontSize = 14.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                } else {
+                                    LazyRow(
+                                        contentPadding = PaddingValues(horizontal = 16.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        items(tvResults, key = { "tv_${it.tmdbId ?: it.id}" }) { item ->
+                                            DiscoveryCard(item = item) { selectedDiscoveryItem = item }
+                                        }
+                                        item { PullToViewAllItem { onNavigateToSectionGrid("genre_${movieGenreId}_${tvGenreId}") } }
                                     }
                                 }
                             }
