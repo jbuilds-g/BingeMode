@@ -1059,24 +1059,19 @@ fun BingeDashboardScreen(
  
                         // Genre browsing
                         val discoveryGenres = listOf(
-                            "Action" to 28,
-                            "Adventure" to 12,
-                            "Animation" to 16,
-                            "Comedy" to 35,
-                            "Crime" to 80,
-                            "Documentary" to 99,
-                            "Drama" to 18,
-                            "Family" to 10751,
-                            "Fantasy" to 14,
-                            "History" to 36,
-                            "Horror" to 27,
-                            "Music" to 10402,
-                            "Mystery" to 9648,
-                            "Romance" to 10749,
-                            "Science Fiction" to 878,
-                            "Thriller" to 53,
-                            "War" to 10752,
-                            "Western" to 37
+                            Triple("Action", 28, 10759),
+                            Triple("Adventure", 12, 10759),
+                            Triple("Animation", 16, 16),
+                            Triple("Comedy", 35, 35),
+                            Triple("Crime", 80, 80),
+                            Triple("Documentary", 99, 99),
+                            Triple("Drama", 18, 18),
+                            Triple("Family", 10751, 10751),
+                            Triple("Fantasy", 14, 10765),
+                            Triple("Mystery", 9648, 9648),
+                            Triple("Science Fiction", 878, 10765),
+                            Triple("War", 10752, 10768),
+                            Triple("Western", 37, 37)
                         )
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             Text(
@@ -1091,9 +1086,9 @@ fun BingeDashboardScreen(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                items(discoveryGenres) { (genreName, genreId) ->
+                                items(discoveryGenres) { (genreName, movieGenreId, tvGenreId) ->
                                     SuggestionChip(
-                                        onClick = { onNavigateToSectionGrid("genre_$genreId") },
+                                        onClick = { onNavigateToSectionGrid("genre_${movieGenreId}_${tvGenreId}") },
                                         label = { Text(genreName) },
                                         shape = CircleShape
                                     )
