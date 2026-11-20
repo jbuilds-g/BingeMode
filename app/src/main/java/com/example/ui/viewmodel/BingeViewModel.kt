@@ -729,7 +729,12 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                 "trending_tv" -> repository.getTrendingTv(page)
                 "top_rated_tv" -> repository.getTopRatedTv(page)
                 "popular_tv" -> repository.getPopularTv(page)
-                else -> emptyList()
+                else -> {
+                    if (sectionId.startsWith("genre_")) {
+                        val genreId = sectionId.removePrefix("genre_").toIntOrNull()
+                        if (genreId != null) repository.getGenreDiscoveries(genreId, page) else emptyList()
+                    } else emptyList()
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
