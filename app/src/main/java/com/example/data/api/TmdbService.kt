@@ -78,4 +78,20 @@ interface TmdbService {
         @Query("api_key") apiKey: String,
         @Query("page") page: Int
     ): TmdbTrendingTvResponse
+
+    @GET("discover/movie")
+    suspend fun discoverMoviesByGenre(
+        @Query("api_key") apiKey: String,
+        @Query("with_genres") genreId: Int,
+        @Query("page") page: Int,
+        @Query("sort_by") sortBy: String = "popularity.desc"
+    ): TmdbDiscoverResponse
+
+    @GET("discover/tv")
+    suspend fun discoverTvByGenre(
+        @Query("api_key") apiKey: String,
+        @Query("with_genres") genreId: Int,
+        @Query("page") page: Int,
+        @Query("sort_by") sortBy: String = "popularity.desc"
+    ): TmdbDiscoverResponse
 }
