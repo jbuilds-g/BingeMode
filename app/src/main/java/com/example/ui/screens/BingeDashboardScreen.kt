@@ -1057,6 +1057,50 @@ fun BingeDashboardScreen(
                             }
                         }
  
+                        // Genre browsing
+                        val discoveryGenres = listOf(
+                            "Action" to 28,
+                            "Adventure" to 12,
+                            "Animation" to 16,
+                            "Comedy" to 35,
+                            "Crime" to 80,
+                            "Documentary" to 99,
+                            "Drama" to 18,
+                            "Family" to 10751,
+                            "Fantasy" to 14,
+                            "History" to 36,
+                            "Horror" to 27,
+                            "Music" to 10402,
+                            "Mystery" to 9648,
+                            "Romance" to 10749,
+                            "Science Fiction" to 878,
+                            "Thriller" to 53,
+                            "War" to 10752,
+                            "Western" to 37
+                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Text(
+                                text = "Browse by genre",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 17.sp,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                            LazyRow(
+                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                items(discoveryGenres) { (genreName, genreId) ->
+                                    SuggestionChip(
+                                        onClick = { onNavigateToSectionGrid("genre_$genreId") },
+                                        label = { Text(genreName) },
+                                        shape = CircleShape
+                                    )
+                                }
+                            }
+                        }
+
                         // Upcoming Movies row
                         Column(
                             verticalArrangement = Arrangement.spacedBy(10.dp)
