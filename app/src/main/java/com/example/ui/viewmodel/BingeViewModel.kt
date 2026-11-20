@@ -731,8 +731,8 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                 "popular_tv" -> repository.getPopularTv(page)
                 else -> {
                     if (sectionId.startsWith("genre_")) {
-                        val genreId = sectionId.removePrefix("genre_").toIntOrNull()
-                        if (genreId != null) repository.getGenreDiscoveries(genreId, page) else emptyList()
+                        val genreIds = sectionId.removePrefix("genre_").split("_").mapNotNull { it.toIntOrNull() }
+                        if (genreIds.size == 2) repository.getGenreDiscoveries(genreIds[0], genreIds[1], page) else emptyList()
                     } else emptyList()
                 }
             }
