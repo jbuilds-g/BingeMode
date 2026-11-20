@@ -342,20 +342,22 @@ class BingeRepository(context: Context) {
                     updated = System.currentTimeMillis()
                 )
             }
-            val tv = tmdbService.discoverTvByGenre(apiKey, tvGenreId, page).results.mapNotNull { item ->
-                val title = item.name ?: return@mapNotNull null
-                Show(
-                    title = title,
-                    tmdbId = item.id,
-                    poster = item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" },
-                    mediaType = "tv",
-                    status = "Returning Series",
-                    rating = item.voteAverage ?: 0.0,
-                    releaseDate = item.firstAirDate,
-                    seasonData = emptyList(),
-                    updated = System.currentTimeMillis()
-                )
-            }
+            val tv = if (tvGenreId > 0) {
+                tmdbService.discoverTvByGenre(apiKey, tvGenreId, page).results.mapNotNull { item ->
+                    val title = item.name ?: return@mapNotNull null
+                    Show(
+                        title = title,
+                        tmdbId = item.id,
+                        poster = item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" },
+                        mediaType = "tv",
+                        status = "Returning Series",
+                        rating = item.voteAverage ?: 0.0,
+                        releaseDate = item.firstAirDate,
+                        seasonData = emptyList(),
+                        updated = System.currentTimeMillis()
+                    )
+                }
+            } else emptyList()
             (movies + tv).sortedByDescending { it.rating }
         } catch (e: Exception) {
             throw TmdbApiException("TMDB genre discovery failed", e)
