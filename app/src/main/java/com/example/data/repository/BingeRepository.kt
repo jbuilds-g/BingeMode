@@ -323,6 +323,45 @@ class BingeRepository(context: Context) {
         }
     }
 
+    // TMDB genre discovery across movies and TV.
+    suspend fun getGenreDiscoveries(genreId: Int, page: Int = 1): List<Show> {
+        val apiKey = getSetting("tmdb_key") ?: return emptyList()
+        if (apiKey.isBlank()) return emptyList()
+        return try {
+            val movies = tmdbService.discoverMoviesByGenre(apiKey, genreId, page).results.mapNotNull { item ->
+                val title = item.title ?: return@mapNotNull null
+                Show(
+                    title = title,
+                    tmdbId = item.id,
+                    poster = item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" },
+                    mediaType = "movie",
+                    status = "Movie",
+                    rating = item.voteAverage ?: 0.0,
+                    releaseDate = item.releaseDate,
+                    seasonData = emptyList(),
+                    updated = System.currentTimeMillis()
+                )
+            }
+            val tv = tmdbService.discoverTvByGenre(apiKey, genreId, page).results.mapNotNull { item ->
+                val title = item.name ?: return@mapNotNull null
+                Show(
+                    title = title,
+                    tmdbId = item.id,
+                    poster = item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" },
+                    mediaType = "tv",
+                    status = "Returning Series",
+                    rating = item.voteAverage ?: 0.0,
+                    releaseDate = item.firstAirDate,
+                    seasonData = emptyList(),
+                    updated = System.currentTimeMillis()
+                )
+            }
+            (movies + tv).sortedByDescending { it.rating }
+        } catch (e: Exception) {
+            throw TmdbApiException("TMDB genre discovery failed", e)
+        }
+    }
+
     // TMDB Popular TV Series
     suspend fun getPopularTv(page: Int = 1): List<Show> {
         val apiKey = getSetting("tmdb_key") ?: return emptyList()
