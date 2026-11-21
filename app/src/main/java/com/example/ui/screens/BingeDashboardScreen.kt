@@ -789,14 +789,40 @@ fun BingeDashboardScreen(
                     )
                 }
                 val genreResults = remember { mutableStateMapOf<String, List<Show>>() }
+                val genreLoadQueue = remember { mutableStateListOf<String>() }
+                val loadedGenreKeys = remember { mutableStateSetOf<String>() }
+                val failedGenreKeys = remember { mutableStateSetOf<String>() }
+                var activeGenreLoad by remember { mutableStateOf(false) }
+
+                fun requestGenreLoad(key: String) {
+                    if (key !in loadedGenreKeys && key !in failedGenreKeys && key !in genreLoadQueue) {
+                        genreLoadQueue.add(key)
+                    }
+                }
+
+                LaunchedEffect(apiKey, genreLoadQueue.size, activeGenreLoad) {
+                    if (apiKey.isNotBlank() && !activeGenreLoad && genreLoadQueue.isNotEmpty()) {
+                        val key = genreLoadQueue.first()
+                        genreLoadQueue.removeAt(0)
+                        activeGenreLoad = true
+                        try {
+                            val results = viewModel.fetchSectionPage("genre_${key}", 1)
+                            if (results.isNotEmpty()) {
+                                genreResults[key] = results
+                                loadedGenreKeys.add(key)
+                            } else {
+                                failedGenreKeys.add(key)
+                            }
+                        } finally {
+                            activeGenreLoad = false
+                        }
+                    }
+                }
+
                 LaunchedEffect(apiKey) {
                     if (apiKey.isNotBlank()) {
-                        discoveryGenres.forEach { (_, movieGenreId, tvGenreId) ->
-                            val key = "${movieGenreId}_${tvGenreId}"
-                            if (key !in genreResults) {
-                                genreResults[key] = viewModel.fetchSectionPage("genre_${key}", 1)
-                            }
-                        }
+                        requestGenreLoad("28_10759")
+                        requestGenreLoad("35_35")
                     }
                 }
 
@@ -1113,7 +1139,9 @@ fun BingeDashboardScreen(
                                 items(discoveryGenres) { (genreName, movieGenreId, tvGenreId) ->
                                     SuggestionChip(
                                         onClick = {
-                                            genreSectionOffsets["${movieGenreId}_${tvGenreId}"]?.let { offset ->
+                                            val key = "${movieGenreId}_${tvGenreId}"
+                                            requestGenreLoad(key)
+                                            genreSectionOffsets[key]?.let { offset ->
                                                 discoveryScope.launch { discoveryScrollState.animateScrollTo(offset) }
                                             }
                                         },
@@ -1323,10 +1351,12 @@ fun BingeDashboardScreen(
                             val tvResults = results.filter { it.mediaType.equals("tv", true) }
 
                             Column(
-                                modifier = Modifier.onGloballyPositioned { coordinates ->
-                                    genreSectionOffsets[genreKey] =
-                                        (coordinates.positionInRoot().y + discoveryScrollState.value).toInt()
-                                },
+                                modifier = Modifier
+                                    .onGloballyPositioned { coordinates ->
+                                        genreSectionOffsets[genreKey] =
+                                            (coordinates.positionInRoot().y + discoveryScrollState.value).toInt()
+                                    }
+                                    .clickable { requestGenreLoad(genreKey) },
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 Text(
@@ -1338,7 +1368,12 @@ fun BingeDashboardScreen(
                                 )
                                 if (movieResults.isEmpty()) {
                                     Text(
-                                        text = if (apiKey.isBlank()) "Add a TMDB API key to browse genres." else "No movies found.",
+                                        text = when {
+                                            apiKey.isBlank() -> "Add a TMDB API key to browse genres."
+                                            genreKey in failedGenreKeys -> "Couldn't load this section. Tap to retry."
+                                            genreKey in loadedGenreKeys -> "No movies found."
+                                            else -> "Scroll here to load movies."
+                                        },
                                         fontSize = 14.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.padding(horizontal = 16.dp)
@@ -1365,7 +1400,12 @@ fun BingeDashboardScreen(
                                 )
                                 if (tvResults.isEmpty()) {
                                     Text(
-                                        text = if (apiKey.isBlank()) "Add a TMDB API key to browse genres." else "No TV shows found.",
+                                        text = when {
+                                            apiKey.isBlank() -> "Add a TMDB API key to browse genres."
+                                            genreKey in failedGenreKeys -> "Couldn't load this section. Tap to retry."
+                                            genreKey in loadedGenreKeys -> "No TV shows found."
+                                            else -> "Scroll here to load TV shows."
+                                        },
                                         fontSize = 14.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.padding(horizontal = 16.dp)
