@@ -1357,8 +1357,12 @@ fun BingeDashboardScreen(
                             Column(
                                 modifier = Modifier
                                     .onGloballyPositioned { coordinates ->
+                                        val positionY = coordinates.positionInRoot().y
                                         genreSectionOffsets[genreKey] =
-                                            (coordinates.positionInRoot().y + discoveryScrollState.value).toInt()
+                                            (positionY + discoveryScrollState.value).toInt()
+                                        if (positionY in -500f..1500f) {
+                                            requestGenreLoad(genreKey)
+                                        }
                                     }
                                     .clickable { requestGenreLoad(genreKey) },
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
