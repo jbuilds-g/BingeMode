@@ -19,9 +19,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ModalBottomSheet
@@ -807,7 +806,6 @@ fun BingeDashboardScreen(
                     if (apiKey.isNotBlank()) {
                         snapshotFlow { genreLoadQueue.firstOrNull() }
                             .filterNotNull()
-                            .distinctUntilChanged()
                             .collect { key ->
                                 genreLoadQueue.remove(key)
                                 try {
