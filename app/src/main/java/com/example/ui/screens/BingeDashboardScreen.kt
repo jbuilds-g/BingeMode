@@ -19,6 +19,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ModalBottomSheet
@@ -792,30 +795,33 @@ fun BingeDashboardScreen(
                 val genreLoadQueue = remember { mutableStateListOf<String>() }
                 val loadedGenreKeys = remember { mutableStateSetOf<String>() }
                 val failedGenreKeys = remember { mutableStateSetOf<String>() }
-                var activeGenreLoad by remember { mutableStateOf(false) }
 
                 fun requestGenreLoad(key: String) {
-                    if (key !in loadedGenreKeys && key !in failedGenreKeys && key !in genreLoadQueue) {
+                    if (key !in loadedGenreKeys && key !in genreLoadQueue) {
+                        failedGenreKeys.remove(key)
                         genreLoadQueue.add(key)
                     }
                 }
 
-                LaunchedEffect(apiKey, genreLoadQueue.size, activeGenreLoad) {
-                    if (apiKey.isNotBlank() && !activeGenreLoad && genreLoadQueue.isNotEmpty()) {
-                        val key = genreLoadQueue.first()
-                        genreLoadQueue.removeAt(0)
-                        activeGenreLoad = true
-                        try {
-                            val results = viewModel.fetchSectionPage("genre_${key}", 1)
-                            if (results.isNotEmpty()) {
-                                genreResults[key] = results
-                                loadedGenreKeys.add(key)
-                            } else {
-                                failedGenreKeys.add(key)
+                LaunchedEffect(apiKey) {
+                    if (apiKey.isNotBlank()) {
+                        snapshotFlow { genreLoadQueue.firstOrNull() }
+                            .filterNotNull()
+                            .distinctUntilChanged()
+                            .collect { key ->
+                                genreLoadQueue.remove(key)
+                                try {
+                                    val results = viewModel.fetchSectionPage("genre_${key}", 1)
+                                    if (results.isNotEmpty()) {
+                                        genreResults[key] = results
+                                        loadedGenreKeys.add(key)
+                                    } else {
+                                        failedGenreKeys.add(key)
+                                    }
+                                } catch (_: Exception) {
+                                    failedGenreKeys.add(key)
+                                }
                             }
-                        } finally {
-                            activeGenreLoad = false
-                        }
                     }
                 }
 
