@@ -792,8 +792,8 @@ fun BingeDashboardScreen(
                 }
                 val genreResults = remember { mutableStateMapOf<String, List<Show>>() }
                 val genreLoadQueue = remember { mutableStateListOf<String>() }
-                val loadedGenreKeys = remember { mutableStateSetOf<String>() }
-                val failedGenreKeys = remember { mutableStateSetOf<String>() }
+                val loadedGenreKeys = remember { mutableStateListOf<String>() }
+                val failedGenreKeys = remember { mutableStateListOf<String>() }
 
                 fun requestGenreLoad(key: String) {
                     if (key !in loadedGenreKeys && key !in genreLoadQueue) {
