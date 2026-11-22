@@ -795,9 +795,13 @@ fun BingeDashboardScreen(
                 val loadedGenreKeys = remember { mutableStateListOf<String>() }
                 val failedGenreKeys = remember { mutableStateListOf<String>() }
 
-                fun requestGenreLoad(key: String) {
-                    if (key !in loadedGenreKeys && key !in genreLoadQueue) {
-                        failedGenreKeys.remove(key)
+                fun requestGenreLoad(key: String, retryFailed: Boolean = false) {
+                    if (
+                        key !in loadedGenreKeys &&
+                        key !in genreLoadQueue &&
+                        (retryFailed || key !in failedGenreKeys)
+                    ) {
+                        if (retryFailed) failedGenreKeys.remove(key)
                         genreLoadQueue.add(key)
                     }
                 }
@@ -827,6 +831,21 @@ fun BingeDashboardScreen(
                     if (apiKey.isNotBlank()) {
                         requestGenreLoad("28_10759")
                         requestGenreLoad("35_35")
+                    }
+                }
+
+                LaunchedEffect(discoveryScrollState, apiKey) {
+                    if (apiKey.isNotBlank()) {
+                        snapshotFlow { discoveryScrollState.value }
+                            .collect { scrollY ->
+                                discoveryGenres.forEach { (_, movieGenreId, tvGenreId) ->
+                                    val key = "${movieGenreId}_${tvGenreId}"
+                                    val sectionY = genreSectionOffsets[key]
+                                    if (sectionY != null && sectionY <= scrollY + 1800) {
+                                        requestGenreLoad(key)
+                                    }
+                                }
+                            }
                     }
                 }
 
@@ -1360,11 +1379,9 @@ fun BingeDashboardScreen(
                                         val positionY = coordinates.positionInRoot().y
                                         genreSectionOffsets[genreKey] =
                                             (positionY + discoveryScrollState.value).toInt()
-                                        if (positionY in -500f..1500f) {
-                                            requestGenreLoad(genreKey)
-                                        }
+
                                     }
-                                    .clickable { requestGenreLoad(genreKey) },
+                                    .clickable { requestGenreLoad(genreKey, retryFailed = true) },
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 Text(
