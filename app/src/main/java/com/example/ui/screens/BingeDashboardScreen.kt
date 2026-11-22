@@ -812,17 +812,19 @@ fun BingeDashboardScreen(
                             .filterNotNull()
                             .collect { key ->
                                 genreLoadQueue.remove(key)
-                                try {
-                                    val results = viewModel.fetchSectionPage("genre_${key}", 1)
-                                    if (results.isNotEmpty()) {
-                                        genreResults[key] = results
-                                        loadedGenreKeys.add(key)
-                                    } else {
-                                        failedGenreKeys.add(key)
-                                    }
-                                } catch (_: Exception) {
+                                var results = emptyList<Show>()
+                                repeat(3) { attempt ->
+                                    results = viewModel.fetchSectionPage("genre_${key}", 1)
+                                    if (results.isNotEmpty()) return@repeat
+                                    if (attempt < 2) kotlinx.coroutines.delay(700L * (attempt + 1))
+                                }
+                                if (results.isNotEmpty()) {
+                                    genreResults[key] = results
+                                    loadedGenreKeys.add(key)
+                                } else {
                                     failedGenreKeys.add(key)
                                 }
+                                kotlinx.coroutines.delay(350L)
                             }
                     }
                 }
@@ -836,16 +838,17 @@ fun BingeDashboardScreen(
 
                 LaunchedEffect(discoveryScrollState, apiKey) {
                     if (apiKey.isNotBlank()) {
-                        snapshotFlow { discoveryScrollState.value }
-                            .collect { scrollY ->
-                                discoveryGenres.forEach { (_, movieGenreId, tvGenreId) ->
-                                    val key = "${movieGenreId}_${tvGenreId}"
-                                    val sectionY = genreSectionOffsets[key]
-                                    if (sectionY != null && sectionY <= scrollY + 1800) {
-                                        requestGenreLoad(key)
-                                    }
+                        snapshotFlow {
+                            discoveryScrollState.value to genreSectionOffsets.toMap()
+                        }.collect { (scrollY, sectionOffsets) ->
+                            discoveryGenres.forEach { (_, movieGenreId, tvGenreId) ->
+                                val key = "${movieGenreId}_${tvGenreId}"
+                                val sectionY = sectionOffsets[key]
+                                if (sectionY != null && sectionY <= scrollY + 1800) {
+                                    requestGenreLoad(key)
                                 }
                             }
+                        }
                     }
                 }
 
