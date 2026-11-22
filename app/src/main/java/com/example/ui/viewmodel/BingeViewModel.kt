@@ -738,7 +738,8 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            _toastMessage.value = "TMDB request failed. Check your API key or network connection."
+            val detail = e.cause?.message ?: e.message ?: e::class.simpleName ?: "Unknown error"
+            _toastMessage.value = "TMDB request failed: $detail"
             emptyList()
         }
     }
