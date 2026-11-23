@@ -736,6 +736,8 @@ class BingeViewModel(private val repository: BingeRepository) : ViewModel() {
                     } else emptyList()
                 }
             }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
             e.printStackTrace()
             val detail = e.cause?.message ?: e.message ?: e::class.simpleName ?: "Unknown error"
