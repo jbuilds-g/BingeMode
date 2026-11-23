@@ -824,30 +824,15 @@ fun BingeDashboardScreen(
                                 } else {
                                     failedGenreKeys.add(key)
                                 }
-                                kotlinx.coroutines.delay(350L)
+                                kotlinx.coroutines.delay(900L)
                             }
                     }
                 }
 
                 LaunchedEffect(apiKey) {
                     if (apiKey.isNotBlank()) {
-                        requestGenreLoad("28_10759")
-                        requestGenreLoad("35_35")
-                    }
-                }
-
-                LaunchedEffect(discoveryScrollState, apiKey) {
-                    if (apiKey.isNotBlank()) {
-                        snapshotFlow {
-                            discoveryScrollState.value to genreSectionOffsets.toMap()
-                        }.collect { (scrollY, sectionOffsets) ->
-                            discoveryGenres.forEach { (_, movieGenreId, tvGenreId) ->
-                                val key = "${movieGenreId}_${tvGenreId}"
-                                val sectionY = sectionOffsets[key]
-                                if (sectionY != null && sectionY <= scrollY + 1800) {
-                                    requestGenreLoad(key)
-                                }
-                            }
+                        discoveryGenres.forEach { (_, movieGenreId, tvGenreId) ->
+                            requestGenreLoad("${movieGenreId}_${tvGenreId}")
                         }
                     }
                 }
