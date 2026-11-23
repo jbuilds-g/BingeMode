@@ -359,6 +359,8 @@ class BingeRepository(context: Context) {
                 }
             } else emptyList()
             (movies + tv).sortedByDescending { it.rating }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
             throw TmdbApiException("TMDB genre discovery failed", e)
         }
