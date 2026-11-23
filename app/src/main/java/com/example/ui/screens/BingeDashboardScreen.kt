@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.positionInRoot
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ModalBottomSheet
@@ -790,6 +791,8 @@ fun BingeDashboardScreen(
                         Triple("Western", 37, 37)
                     )
                 }
+                var visibleGenreCount by remember { mutableIntStateOf(0) }
+                var pendingGenreScrollKey by remember { mutableStateOf<String?>(null) }
                 val genreResults = remember { mutableStateMapOf<String, List<Show>>() }
                 val genreLoadQueue = remember { mutableStateListOf<String>() }
                 val loadedGenreKeys = remember { mutableStateListOf<String>() }
@@ -829,12 +832,13 @@ fun BingeDashboardScreen(
                     }
                 }
 
-                LaunchedEffect(apiKey) {
-                    if (apiKey.isNotBlank()) {
-                        discoveryGenres.forEach { (_, movieGenreId, tvGenreId) ->
-                            requestGenreLoad("${movieGenreId}_${tvGenreId}")
-                        }
-                    }
+                LaunchedEffect(pendingGenreScrollKey, visibleGenreCount) {
+                    val key = pendingGenreScrollKey ?: return@LaunchedEffect
+                    val offset = snapshotFlow { genreSectionOffsets[key] }
+                        .filterNotNull()
+                        .first()
+                    discoveryScrollState.animateScrollTo(offset)
+                    pendingGenreScrollKey = null
                 }
 
                 Column(
@@ -1151,10 +1155,19 @@ fun BingeDashboardScreen(
                                     SuggestionChip(
                                         onClick = {
                                             val key = "${movieGenreId}_${tvGenreId}"
-                                            requestGenreLoad(key)
-                                            genreSectionOffsets[key]?.let { offset ->
-                                                discoveryScope.launch { discoveryScrollState.animateScrollTo(offset) }
+                                            val targetIndex = discoveryGenres.indexOfFirst {
+                                                it.second == movieGenreId && it.third == tvGenreId
                                             }
+                                            if (targetIndex >= 0 && targetIndex >= visibleGenreCount) {
+                                                val oldCount = visibleGenreCount
+                                                visibleGenreCount = targetIndex + 1
+                                                discoveryGenres.subList(oldCount, targetIndex + 1).forEach { (_, movieId, tvId) ->
+                                                    requestGenreLoad("${movieId}_${tvId}")
+                                                }
+                                            } else {
+                                                requestGenreLoad(key)
+                                            }
+                                            pendingGenreScrollKey = key
                                         },
                                         label = { Text(genreName) },
                                         shape = CircleShape
@@ -1355,7 +1368,7 @@ fun BingeDashboardScreen(
                         }
 
                         // Dedicated genre sections
-                        discoveryGenres.forEach { (genreName, movieGenreId, tvGenreId) ->
+                        discoveryGenres.take(visibleGenreCount).forEach { (genreName, movieGenreId, tvGenreId) ->
                             val genreKey = "${movieGenreId}_${tvGenreId}"
                             val results = genreResults[genreKey].orEmpty()
                             val movieResults = results.filter { it.mediaType.equals("movie", true) }
@@ -1385,7 +1398,7 @@ fun BingeDashboardScreen(
                                             apiKey.isBlank() -> "Add a TMDB API key to browse genres."
                                             genreKey in failedGenreKeys -> "Couldn't load this section. Tap to retry."
                                             genreKey in loadedGenreKeys -> "No movies found."
-                                            else -> "Scroll here to load movies."
+                                            else -> "Tap Load More Genres to browse this category."
                                         },
                                         fontSize = 14.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1417,7 +1430,7 @@ fun BingeDashboardScreen(
                                             apiKey.isBlank() -> "Add a TMDB API key to browse genres."
                                             genreKey in failedGenreKeys -> "Couldn't load this section. Tap to retry."
                                             genreKey in loadedGenreKeys -> "No TV shows found."
-                                            else -> "Scroll here to load TV shows."
+                                            else -> "Tap Load More Genres to browse this category."
                                         },
                                         fontSize = 14.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1434,6 +1447,29 @@ fun BingeDashboardScreen(
                                         }
                                         item { PullToViewAllItem { onNavigateToSectionGrid("genre_${movieGenreId}_${tvGenreId}") } }
                                     }
+                                }
+                            }
+                        }
+
+                        if (visibleGenreCount < discoveryGenres.size) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Button(
+                                    onClick = {
+                                        val startIndex = visibleGenreCount
+                                        val endIndex = (startIndex + 4).coerceAtMost(discoveryGenres.size)
+                                        visibleGenreCount = endIndex
+                                        discoveryGenres.subList(startIndex, endIndex).forEach { (_, movieId, tvId) ->
+                                            requestGenreLoad("${movieId}_${tvId}")
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Load More Genres")
                                 }
                             }
                         }
