@@ -813,9 +813,9 @@ fun BingeDashboardScreen(
                             .collect { key ->
                                 genreLoadQueue.remove(key)
                                 var results = emptyList<Show>()
-                                repeat(3) { attempt ->
+                                for (attempt in 0..2) {
                                     results = viewModel.fetchSectionPage("genre_${key}", 1)
-                                    if (results.isNotEmpty()) return@repeat
+                                    if (results.isNotEmpty()) break
                                     if (attempt < 2) kotlinx.coroutines.delay(700L * (attempt + 1))
                                 }
                                 if (results.isNotEmpty()) {
