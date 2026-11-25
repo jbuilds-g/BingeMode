@@ -105,7 +105,7 @@ interface TmdbService {
     @GET("discover/tv")
     suspend fun discoverTvByKeyword(
         @Query("api_key") apiKey: String,
-        @Query("with_keywords") keywordId: Int,
+        @Query("with_keywords") keywordIds: String,
         @Query("page") page: Int,
         @Query("sort_by") sortBy: String = "popularity.desc"
     ): TmdbDiscoverResponse
