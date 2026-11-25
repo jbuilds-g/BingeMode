@@ -94,4 +94,19 @@ interface TmdbService {
         @Query("page") page: Int,
         @Query("sort_by") sortBy: String = "popularity.desc"
     ): TmdbDiscoverResponse
+
+    @GET("search/keyword")
+    suspend fun searchKeyword(
+        @Query("api_key") apiKey: String,
+        @Query("query") query: String,
+        @Query("page") page: Int = 1
+    ): TmdbKeywordSearchResponse
+
+    @GET("discover/tv")
+    suspend fun discoverTvByKeyword(
+        @Query("api_key") apiKey: String,
+        @Query("with_keywords") keywordId: Int,
+        @Query("page") page: Int,
+        @Query("sort_by") sortBy: String = "popularity.desc"
+    ): TmdbDiscoverResponse
 }
