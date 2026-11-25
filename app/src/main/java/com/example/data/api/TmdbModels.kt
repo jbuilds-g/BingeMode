@@ -114,6 +114,17 @@ data class TmdbMovieDetails(
 
 
 @JsonClass(generateAdapter = true)
+data class TmdbKeywordSearchResponse(
+    val results: List<TmdbKeyword>
+)
+
+@JsonClass(generateAdapter = true)
+data class TmdbKeyword(
+    val id: Int,
+    val name: String
+)
+
+@JsonClass(generateAdapter = true)
 data class TmdbDiscoverResponse(
     val results: List<TmdbDiscoverItem>
 )
