@@ -1,7 +1,10 @@
 package com.jbuilds.bingemode.ui.components
 
+import android.content.ClipData
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import androidx.core.content.FileProvider
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -14,6 +17,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +32,7 @@ import coil.compose.AsyncImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.net.URL
 
 /**
@@ -49,6 +54,7 @@ fun MediaImage(
     val scope = rememberCoroutineScope()
     var viewerOpen by remember { mutableStateOf(false) }
     var saveTarget by remember { mutableStateOf<String?>(null) }
+    var isSharing by remember { mutableStateOf(false) }
     val imageUrls = remember(model, viewerImages) {
         (viewerImages.ifEmpty { listOfNotNull(model) })
             .map { it.toOriginalTmdbImageUrl() }
@@ -135,6 +141,53 @@ fun MediaImage(
                         modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+                        IconButton(
+                            enabled = !isSharing,
+                            onClick = {
+                                val currentImage = imageUrls[pagerState.currentPage]
+                                isSharing = true
+                                scope.launch {
+                                    try {
+                                        val shareUri = withContext(Dispatchers.IO) {
+                                            val bytes = readImageBytes(context, currentImage)
+                                            val directory = File(context.cacheDir, "shared_images").apply { mkdirs() }
+                                            val extension = Uri.parse(currentImage).lastPathSegment
+                                                ?.substringAfterLast('.', "jpg")
+                                                ?.takeIf { it.matches(Regex("[A-Za-z0-9]{2,5}")) }
+                                                ?: "jpg"
+                                            val imageFile = File(directory, "bingemode-" + currentImage.hashCode() + "." + extension)
+                                            imageFile.writeBytes(bytes)
+                                            FileProvider.getUriForFile(
+                                                context,
+                                                context.packageName + ".fileprovider",
+                                                imageFile
+                                            )
+                                        }
+                                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "image/*"
+                                            putExtra(Intent.EXTRA_STREAM, shareUri)
+                                            clipData = ClipData.newUri(context.contentResolver, "Shared image", shareUri)
+                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                        }
+                                        context.startActivity(Intent.createChooser(shareIntent, "Share image"))
+                                    } catch (e: Exception) {
+                                        android.widget.Toast.makeText(
+                                            context,
+                                            "Couldn't share image",
+                                            android.widget.Toast.LENGTH_SHORT
+                                        ).show()
+                                    } finally {
+                                        isSharing = false
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                Icons.Rounded.Share,
+                                contentDescription = "Share image",
+                                tint = androidx.compose.ui.graphics.Color.White
+                            )
+                        }
                         IconButton(onClick = {
                             val currentImage = imageUrls[pagerState.currentPage]
                             saveTarget = currentImage
