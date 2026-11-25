@@ -1418,7 +1418,7 @@ fun BingeDashboardScreen(
                                 }
 
                                 Text(
-                                    text = "$genreName TV Shows",
+                                    text = "$genreName TV Series",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 17.sp,
                                     color = MaterialTheme.colorScheme.onBackground,
@@ -1447,29 +1447,6 @@ fun BingeDashboardScreen(
                                         }
                                         item { PullToViewAllItem { onNavigateToSectionGrid("genre_${movieGenreId}_${tvGenreId}") } }
                                     }
-                                }
-                            }
-                        }
-
-                        if (visibleGenreCount < discoveryGenres.size) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Button(
-                                    onClick = {
-                                        val startIndex = visibleGenreCount
-                                        val endIndex = (startIndex + 4).coerceAtMost(discoveryGenres.size)
-                                        visibleGenreCount = endIndex
-                                        discoveryGenres.subList(startIndex, endIndex).forEach { (_, movieId, tvId) ->
-                                            requestGenreLoad("${movieId}_${tvId}")
-                                        }
-                                    },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text("Load More Genres")
                                 }
                             }
                         }
@@ -1509,6 +1486,31 @@ fun BingeDashboardScreen(
                                 }
                             }
                         }
+
+                        if (visibleGenreCount < discoveryGenres.size) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Button(
+                                    onClick = {
+                                        val startIndex = visibleGenreCount
+                                        val endIndex = (startIndex + 4).coerceAtMost(discoveryGenres.size)
+                                        visibleGenreCount = endIndex
+                                        discoveryGenres.subList(startIndex, endIndex).forEach { (_, movieId, tvId) ->
+                                            requestGenreLoad("${movieId}_${tvId}")
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Load More Genres")
+                                }
+                            }
+                        }
+
+
                     }
                 }
             } else if (tab == 2) {
