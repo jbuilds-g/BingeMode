@@ -342,22 +342,38 @@ class BingeRepository(context: Context) {
                     updated = System.currentTimeMillis()
                 )
             }
-            val tv = if (tvGenreId > 0) {
-                tmdbService.discoverTvByGenre(apiKey, tvGenreId, page).results.mapNotNull { item ->
-                    val title = item.name ?: return@mapNotNull null
-                    Show(
-                        title = title,
-                        tmdbId = item.id,
-                        poster = item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" },
-                        mediaType = "tv",
-                        status = "Returning Series",
-                        rating = item.voteAverage ?: 0.0,
-                        releaseDate = item.firstAirDate,
-                        seasonData = emptyList(),
-                        updated = System.currentTimeMillis()
-                    )
+            val customTvKeyword = when (movieGenreId) {
+                27 -> "horror"
+                10402 -> "music"
+                10749 -> "romance"
+                53 -> "thriller"
+                else -> null
+            }
+            val tvResponse = when {
+                tvGenreId > 0 -> tmdbService.discoverTvByGenre(apiKey, tvGenreId, page)
+                customTvKeyword != null -> {
+                    val keyword = tmdbService.searchKeyword(apiKey, customTvKeyword).results
+                        .firstOrNull { it.name.equals(customTvKeyword, ignoreCase = true) }
+                    if (keyword != null) {
+                        tmdbService.discoverTvByKeyword(apiKey, keyword.id.toString(), page)
+                    } else null
                 }
-            } else emptyList()
+                else -> null
+            }
+            val tv = tvResponse?.results?.mapNotNull { item ->
+                val title = item.name ?: return@mapNotNull null
+                Show(
+                    title = title,
+                    tmdbId = item.id,
+                    poster = item.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" },
+                    mediaType = "tv",
+                    status = "Returning Series",
+                    rating = item.voteAverage ?: 0.0,
+                    releaseDate = item.firstAirDate,
+                    seasonData = emptyList(),
+                    updated = System.currentTimeMillis()
+                )
+            }.orEmpty()
             (movies + tv).sortedByDescending { it.rating }
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e
